@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package t1;
+
+service Test {
+	// Send can be used to send a message to the email service for delivery
+	rpc DoTest(TestRequest) returns (TestResponse) {}
+}
+
+// TestRequest is used to do request a test run
+message TestRequest {
+	// some information
+	string Name = 1; // `custom:"name"` some additional comment
+	int32 Function = 2; // custom:"function"
+
+	TestNested SubItemEmbeded = 3;  // `compose:"embed"`
+	TestNested SubItemNested = 4; // another function
+	repeated TestNested SubItemsNested = 5; // another function
+}
+
+message TestNested {
+	string Name = 1; // `custom:"nested-name" db:"test" json:"joo,omitempty"`
+	string Function = 2;
+}
+
+message TestResponse {
+	// status will return the sending status: ok
+	// if sending fails, an error will be returned
+	repeated string Status = 1; // @keep-this this would be awesome
+}

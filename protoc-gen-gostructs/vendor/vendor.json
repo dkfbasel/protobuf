@@ -1,0 +1,69 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"path": "github.com/go/protobuf/proto",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "FhLvgtYfuKY0ow9wtLJRoeg7d6w=",
+			"path": "github.com/gogo/protobuf/gogoproto",
+			"revision": "26de2f9a7d3b1826f275e7a97c8cad5080589426",
+			"revisionTime": "2018-01-21T16:00:31Z"
+		},
+		{
+			"checksumSHA1": "wn2shNJMwRZpvuvkf1s7h0wvqHI=",
+			"path": "github.com/gogo/protobuf/proto",
+			"revision": "26de2f9a7d3b1826f275e7a97c8cad5080589426",
+			"revisionTime": "2018-01-21T16:00:31Z"
+		},
+		{
+			"checksumSHA1": "F+PKpdY6PyIrxQ8b20TzsM+1JuI=",
+			"path": "github.com/gogo/protobuf/protoc-gen-gogo/descriptor",
+			"revision": "26de2f9a7d3b1826f275e7a97c8cad5080589426",
+			"revisionTime": "2018-01-21T16:00:31Z"
+		},
+		{
+			"checksumSHA1": "SuN7KlJvfhPrVbIyQUFr0tumC6c=",
+			"path": "github.com/gogo/protobuf/protoc-gen-gogo/generator",
+			"revision": "26de2f9a7d3b1826f275e7a97c8cad5080589426",
+			"revisionTime": "2018-01-21T16:00:31Z"
+		},
+		{
+			"checksumSHA1": "curkzoP3cQRB7lxDrDgb7dCRhVg=",
+			"path": "github.com/gogo/protobuf/protoc-gen-gogo/plugin",
+			"revision": "26de2f9a7d3b1826f275e7a97c8cad5080589426",
+			"revisionTime": "2018-01-21T16:00:31Z"
+		},
+		{
+			"checksumSHA1": "WX1+2gktHcBmE9MGwFSGs7oqexU=",
+			"path": "github.com/golang/protobuf/proto",
+			"revision": "925541529c1fa6821df4e44ce2723319eb2be768",
+			"revisionTime": "2018-01-25T21:43:03Z"
+		},
+		{
+			"checksumSHA1": "XNHQiRltA7NQJV0RvUroY+cf+zg=",
+			"path": "github.com/golang/protobuf/protoc-gen-go/descriptor",
+			"revision": "925541529c1fa6821df4e44ce2723319eb2be768",
+			"revisionTime": "2018-01-25T21:43:03Z"
+		},
+		{
+			"checksumSHA1": "dbkgZT1dlQxBBeqNb74+pdbOMbc=",
+			"path": "github.com/golang/protobuf/protoc-gen-go/generator",
+			"revision": "925541529c1fa6821df4e44ce2723319eb2be768",
+			"revisionTime": "2018-01-25T21:43:03Z"
+		},
+		{
+			"checksumSHA1": "KxpGuQ5LSMaImXONLN/YM3shGcQ=",
+			"path": "github.com/golang/protobuf/protoc-gen-go/plugin",
+			"revision": "925541529c1fa6821df4e44ce2723319eb2be768",
+			"revisionTime": "2018-01-25T21:43:03Z"
+		},
+		{
+			"path": "github.com/goloang/protobuf/protoc-gen-go/generator",
+			"revision": ""
+		}
+	],
+	"rootPath": "bitbucket.org/dkfbasel/dev.grpc-tags/protoc-gen-gotags"
+}
