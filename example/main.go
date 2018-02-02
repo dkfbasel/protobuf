@@ -4,50 +4,48 @@ package main
 import (
 	"fmt"
 
-	domain "bitbucket.org/dkfbasel/dev.grpc-tags/proto_test"
+	domain "github.com/dkfbasel/protobuf/example/domain"
 )
 
 func main() {
 
-	tmp := domain.TestRequest{}
-	tmp.Name = "myname"
-	tmp.Function = 20
+	fmt.Println("- Create a new item to be ironed")
 
-	tmpembed := domain.TestNested{}
-	tmpembed.Name = "myembeddedname"
-	tmpembed.Function = "mycustomfunction"
-	tmp.TestNested = tmpembed
+	item := domain.Item{}
+	item.Name = "Shirt"
 
-	nestedItem := domain.TestNested{}
-	nestedItem.Name = "mynesteditem"
-	nestedItem.Function = "mycustomnesteditemfunction"
+	fmt.Println("- Make a wrinkled item out of it")
 
-	tmp.SubItemNested = &nestedItem
+	wrinkled := domain.WrinkledItem{Item: item}
+	wrinkled.Customer = "A custom conscious guy"
+	wrinkled.Wrinkels = 23
 
-	nestedItemSlice1 := domain.TestNested{}
-	nestedItemSlice1.Name = "slice1name"
-	nestedItemSlice1.Function = "slice1function"
-
-	nestedItemSlice2 := domain.TestNested{}
-	nestedItemSlice2.Name = "slice2name"
-	nestedItemSlice2.Function = "slice2function"
-
-	tmp.SubItemsNested = []*domain.TestNested{&nestedItemSlice1, &nestedItemSlice2}
-
-	tmp2, err := tmp.Convert()
+	fmt.Println("- Convert the wrinkled item for protobuf transmission")
+	wrinkledProto, err := wrinkled.Convert()
 	if err != nil {
-		fmt.Printf("error: %+v\n\n˙", err)
+		fmt.Println("-- error: could not convert to protobuf struct: ", err)
 	}
-	fmt.Println("-- proto from custom --")
-	fmt.Printf("%+v\n", tmp2)
 
-	tmp2.GetFunction()
+	fmt.Printf("-- protobuf: %v\n", wrinkledProto)
 
-	fmt.Println("-- custom from proto --")
-	tmp3, err := domain.ConvertTestRequest(tmp2)
+	fmt.Println("- Convert back to our custom struct")
+	newWrinkled, err := domain.ConvertWrinkledItem(wrinkledProto)
 	if err != nil {
-		fmt.Printf("error: %+v\n\n˙", err)
+		fmt.Println("-- error: could not convert to protobuf struct: ", err)
 	}
-	fmt.Printf("%+v\n", tmp3)
+
+	fmt.Println("- Iron out the wrinkles (one was forgotten)")
+	unwrinkled := domain.SmoothItem{}
+	unwrinkled.Item = newWrinkled.Item
+	unwrinkled.Wrinkels = 1
+	unwrinkled.Cost = 50
+
+	fmt.Println("- Convert the unwrinkled shirt for protobuf transmission")
+	unwrinkledProto, err := unwrinkled.Convert()
+	if err != nil {
+		fmt.Println("-- error: could not convert to protobuf struct: ", err)
+	}
+
+	fmt.Printf("-- protobuf: %v\n", unwrinkledProto)
 
 }

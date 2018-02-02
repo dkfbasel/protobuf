@@ -1,6 +1,6 @@
 #!/bin/sh
 
 protoc \
-  --go_out=plugins=grpc:../proto_test/proto \
-  --gostructs_out=import=bitbucket.org/dkfbasel/dev.grpc-tags/proto_test/proto:../proto_test \
+  --gostructs_out=import=github.com/dkfbasel/protobuf/example/domain/proto:../domain \
+  --go_out=plugins=grpc:../domain/proto \
   *.proto

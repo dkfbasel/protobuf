@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package grpcservice;
+
+// Butler provides handy functions for you
+service Butler {
+	// Iron will take a wrinkled item and remove all wrinkels
+	rpc Iron(WrinkledItem) returns (SmoothItem) {}
+}
+
+// WrinkledItem is used for items with multiple wrinkes
+message WrinkledItem {
+
+	// customer will contain the name of the customer
+	string Customer = 1;
+
+	// nested messages can be embedded directly using the tag compose:"embed"
+	Item Item = 2; // `compose:"embed"`
+}
+
+// SmoothItem is used as response with associated costs
+message SmoothItem {
+	Item Item = 1; // `compose:"embed"`
+	int32 Cost = 2; // cost in USD
+}
+
+// Item contains the information about a specific item
+message Item {
+	string Name = 1;     // db:"name" json:"name,omitempty"`
+	int32 Wrinkels = 2;  // db:"no_wrinkles" json:"wrinkels,omitempty"`
+}
