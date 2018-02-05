@@ -14,9 +14,9 @@ func generateConvertFnCustom(p *plugin, file *generator.FileDescriptor,
 
 	for mIndex, message := range file.Messages() {
 
-		p.P("// Convert will convert the proto struct to a custom type with")
-		p.P("// tags and embedded structs if specified")
-		p.Printf("func (from *%s) Convert() (*protodef.%s, error) {", message.GetName(), message.GetName())
+		p.P("// Proto will convert our custom type to a struct that can be")
+		p.P("// serialized as protobuf")
+		p.Printf("func (from *%s) Proto() (*protodef.%s, error) {", message.GetName(), message.GetName())
 		p.In()
 
 		p.P("var err error\n")
@@ -99,7 +99,7 @@ func generateConvertFnCustom(p *plugin, file *generator.FileDescriptor,
 					}
 
 					messageName := fieldTypeName(field)
-					p.Printf("to.%s, err = from.%s.Convert()", fieldNameProto, messageName)
+					p.Printf("to.%s, err = from.%s.Proto()", fieldNameProto, messageName)
 					p.PrintReturnErr()
 					continue
 				}
@@ -108,7 +108,7 @@ func generateConvertFnCustom(p *plugin, file *generator.FileDescriptor,
 				if field.IsRepeated() == false {
 
 					// convert nested structs
-					p.Printf("to.%s, err = from.%s.Convert()", fieldNameProto, fieldNameProto)
+					p.Printf("to.%s, err = from.%s.Proto()", fieldNameProto, fieldNameProto)
 					p.PrintReturnErr()
 					continue
 
@@ -130,7 +130,7 @@ func generateConvertFnCustom(p *plugin, file *generator.FileDescriptor,
 				p.In()
 
 				// directly assign scalar fields
-				p.Printf("to.%s[i], err = from.%s[i].Convert()", fieldNameProto, fieldNameProto)
+				p.Printf("to.%s[i], err = from.%s[i].Proto()", fieldNameProto, fieldNameProto)
 				p.PrintReturnErr()
 
 				p.Out()
@@ -163,19 +163,19 @@ func generateConvertFnProto(p *plugin, file *generator.FileDescriptor,
 
 		messageName := message.GetName()
 
-		p.Printf("// Convert%s will convert the proto optimized struct into", messageName)
+		p.Printf("// FromProto%s will convert the proto optimized struct into", messageName)
 		p.P("// an easier to use go structs")
-		p.Printf("func Convert%s(from *protodef.%s) (*%s, error) {", messageName, messageName, messageName)
+		p.Printf("func (to *%s) FromProto(from *protodef.%s) error {", messageName, messageName)
 		p.In()
 
 		p.P("var err error\n")
 		p.P("if from == nil {")
 		p.In()
-		p.P("return nil, nil")
+		p.P("return nil")
 		p.Out()
 		p.P("}\n")
 
-		p.P("to := ", messageName, "{}")
+		p.P("toTmp := ", messageName, "{}")
 
 		// iterate through all struct fields
 		fields := message.GetField()
@@ -204,7 +204,7 @@ func generateConvertFnProto(p *plugin, file *generator.FileDescriptor,
 				// handle all non repeated fields
 				if field.IsRepeated() == false {
 					// convert the field
-					p.Printf("to.%s = from.Get%s()", fieldNameProto, fieldNameProto)
+					p.Printf("toTmp.%s = from.Get%s()", fieldNameProto, fieldNameProto)
 					continue
 				}
 
@@ -214,14 +214,14 @@ func generateConvertFnProto(p *plugin, file *generator.FileDescriptor,
 
 				// generate a slice of the same type with the same size
 				// note: ftype will already generate slice of types
-				p.Printf("to.%s = make(%s, len(from.%s))", fieldNameProto, ftype, fieldNameProto)
+				p.Printf("toTmp.%s = make(%s, len(from.%s))", fieldNameProto, ftype, fieldNameProto)
 
 				// go rough all items in the from struct
 				p.Printf("for i := range from.%s {", fieldNameProto)
 				p.In()
 
 				// directly assign scalar fields
-				p.Printf("to.%s[i] = from.%s[i]", fieldNameProto, fieldNameProto)
+				p.Printf("toTmp.%s[i] = from.%s[i]", fieldNameProto, fieldNameProto)
 
 				p.Out()
 				p.P("}")
@@ -247,9 +247,10 @@ func generateConvertFnProto(p *plugin, file *generator.FileDescriptor,
 						continue
 					}
 
-					p.Printf("tmp, err := Convert%s(from.Get%s())", fieldMessageName, fieldNameProto)
-					p.PrintReturnErr()
-					p.Printf("to.%s = *tmp", fieldMessageName)
+					p.Printf("tmp := %s{}", fieldMessageName)
+					p.Printf("err = tmp.FromProto(from.Get%s())", fieldNameProto)
+					p.PrintReturnErr("return err")
+					p.Printf("toTmp.%s = tmp", fieldMessageName)
 					continue
 				}
 
@@ -257,8 +258,12 @@ func generateConvertFnProto(p *plugin, file *generator.FileDescriptor,
 				if field.IsRepeated() == false {
 
 					// convert nested structs
-					p.Printf("to.%s, err = Convert%s(from.Get%s())", fieldNameProto, fieldMessageName, fieldNameProto)
-					p.PrintReturnErr()
+					p.Printf("tmp := %s{}", fieldMessageName)
+					p.Printf("err = tmp.FromProto(from.Get%s())", fieldNameProto)
+					p.PrintReturnErr("return err")
+
+					p.Printf("toTmp.%s = tmp", fieldNameProto)
+
 					continue
 
 				}
@@ -271,15 +276,18 @@ func generateConvertFnProto(p *plugin, file *generator.FileDescriptor,
 
 				// generate a slice of the same type with the same size
 				// note: ftype will already generate a pointer to a slice
-				p.Printf("to.%s = make(%s, len(from.%s))", fieldNameProto, ftype, fieldNameProto)
+				p.Printf("toTmp.%s = make(%s, len(from.%s))", fieldNameProto, ftype, fieldNameProto)
 
 				// go rough all items in the from struct
 				p.Printf("for i := range from.%s {", fieldNameProto)
 				p.In()
 
 				// directly assign scalar fields
-				p.Printf("to.%s[i], err = Convert%s(from.%s[i])", fieldNameProto, fieldMessageName, fieldNameProto)
-				p.PrintReturnErr()
+				p.Printf("tmp := %s{}", fieldMessageName)
+				p.Printf("err = tmp.FromProto(from.%s[i])", fieldNameProto)
+				p.PrintReturnErr("return err")
+
+				p.Printf("toTmp.%s[i] = tmp", fieldNameProto)
 
 				p.Out()
 				p.P("}")
@@ -292,7 +300,17 @@ func generateConvertFnProto(p *plugin, file *generator.FileDescriptor,
 		}
 
 		p.P()
-		p.P("return &to, err")
+
+		// return the error if not nil
+		p.PrintReturnErr("return err")
+
+		// assign the temporary struct to our struct
+		// dereferencing of the pointer will make sure that we replace
+		// the actual struct in memory
+		p.P()
+		p.P("*to = toTmp")
+		p.P()
+		p.P("return nil")
 
 		p.Out()
 		p.P("}")

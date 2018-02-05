@@ -38,14 +38,54 @@ func fieldTypeName(field *descriptor.FieldDescriptorProto) string {
 	name := field.GetType().String()
 
 	switch name {
-	case "TYPE_STRING":
-		return "string"
+
+	case "TYPE_DOUBLE":
+		return "float64"
+
+	case "TYPE_FLOAT":
+		return "float32"
 
 	case "TYPE_INT32":
 		return "int32"
 
+	case "TYPE_INT64":
+		return "int64"
+
+	case "TYPE_UINT32":
+		return "uint32"
+
+	case "TYPE_UINT64":
+		return "uint64"
+
+	case "TYPE_SINT32":
+		return "int32"
+
+	case "TYPE_SINT64":
+		return "int64"
+
+	case "TYPE_FIXED32":
+		return "uint32"
+
+	case "TYPE_FIXED64":
+		return "uint64"
+
+	case "TYPE_SFIXED32":
+		return "int32"
+
+	case "TYPE_SFIXED64":
+		return "int64"
+
+	case "TYPE_BOOL":
+		return "bool"
+
+	case "TYPE_STRING":
+		return "string"
+
 	case "TYPE_BYTES":
 		return "[]byte"
+
+	case "TYPE_ENUM":
+		return "int"
 
 	case "TYPE_MESSAGE":
 		return shortName(field.GetTypeName())
