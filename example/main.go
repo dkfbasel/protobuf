@@ -4,6 +4,8 @@ package main
 import (
 	"fmt"
 
+	// without explicit naming the package name would be grpcservide
+	// (as defined in the protobuf definition)
 	domain "github.com/dkfbasel/protobuf/example/domain"
 )
 
@@ -21,7 +23,7 @@ func main() {
 	wrinkled.Wrinkels = 23
 
 	fmt.Println("- Convert the wrinkled item for protobuf transmission")
-	wrinkledProto, err := wrinkled.Convert()
+	wrinkledProto, err := wrinkled.Proto()
 	if err != nil {
 		fmt.Println("-- error: could not convert to protobuf struct: ", err)
 	}
@@ -29,7 +31,8 @@ func main() {
 	fmt.Printf("-- protobuf: %v\n", wrinkledProto)
 
 	fmt.Println("- Convert back to our custom struct")
-	newWrinkled, err := domain.ConvertWrinkledItem(wrinkledProto)
+	newWrinkled := domain.WrinkledItem{}
+	err = newWrinkled.FromProto(wrinkledProto)
 	if err != nil {
 		fmt.Println("-- error: could not convert to protobuf struct: ", err)
 	}
@@ -41,7 +44,7 @@ func main() {
 	unwrinkled.Cost = 50
 
 	fmt.Println("- Convert the unwrinkled shirt for protobuf transmission")
-	unwrinkledProto, err := unwrinkled.Convert()
+	unwrinkledProto, err := unwrinkled.Proto()
 	if err != nil {
 		fmt.Println("-- error: could not convert to protobuf struct: ", err)
 	}

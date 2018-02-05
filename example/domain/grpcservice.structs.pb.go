@@ -24,6 +24,7 @@ var _ = fmt.Errorf
 type WrinkledItem struct {
 	// customer will contain the name of the customer
 	Customer string
+	Location int
 	// nested messages can be embedded directly using the tag compose:"embed"
 	Item `compose:"embed"`
 }
@@ -42,9 +43,9 @@ type Item struct {
 
 // --- STRUCT CONVERSION ---
 
-// Convert will convert the proto struct to a custom type with
-// tags and embedded structs if specified
-func (from *WrinkledItem) Convert() (*protodef.WrinkledItem, error) {
+// Proto will convert our custom type to a struct that can be
+// serialized as protobuf
+func (from *WrinkledItem) Proto() (*protodef.WrinkledItem, error) {
 	var err error
 
 	if from == nil {
@@ -55,7 +56,9 @@ func (from *WrinkledItem) Convert() (*protodef.WrinkledItem, error) {
 
 	to.Customer = from.Customer
 
-	to.Item, err = from.Item.Convert()
+	to.Location = from.Location
+
+	to.Item, err = from.Item.Proto()
 	if err != nil {
 		return nil, err
 	}
@@ -63,9 +66,9 @@ func (from *WrinkledItem) Convert() (*protodef.WrinkledItem, error) {
 	return &to, err
 }
 
-// Convert will convert the proto struct to a custom type with
-// tags and embedded structs if specified
-func (from *SmoothItem) Convert() (*protodef.SmoothItem, error) {
+// Proto will convert our custom type to a struct that can be
+// serialized as protobuf
+func (from *SmoothItem) Proto() (*protodef.SmoothItem, error) {
 	var err error
 
 	if from == nil {
@@ -74,7 +77,7 @@ func (from *SmoothItem) Convert() (*protodef.SmoothItem, error) {
 
 	to := protodef.SmoothItem{}
 
-	to.Item, err = from.Item.Convert()
+	to.Item, err = from.Item.Proto()
 	if err != nil {
 		return nil, err
 	}
@@ -84,9 +87,9 @@ func (from *SmoothItem) Convert() (*protodef.SmoothItem, error) {
 	return &to, err
 }
 
-// Convert will convert the proto struct to a custom type with
-// tags and embedded structs if specified
-func (from *Item) Convert() (*protodef.Item, error) {
+// Proto will convert our custom type to a struct that can be
+// serialized as protobuf
+func (from *Item) Proto() (*protodef.Item, error) {
 	var err error
 
 	if from == nil {
@@ -102,64 +105,86 @@ func (from *Item) Convert() (*protodef.Item, error) {
 	return &to, err
 }
 
-// ConvertWrinkledItem will convert the proto optimized struct into
+// FromProtoWrinkledItem will convert the proto optimized struct into
 // an easier to use go structs
-func ConvertWrinkledItem(from *protodef.WrinkledItem) (*WrinkledItem, error) {
+func (to *WrinkledItem) FromProto(from *protodef.WrinkledItem) error {
 	var err error
 
 	if from == nil {
-		return nil, nil
+		return nil
 	}
 
-	to := WrinkledItem{}
+	toTmp := WrinkledItem{}
 
-	to.Customer = from.GetCustomer()
+	toTmp.Customer = from.GetCustomer()
 
-	tmp, err := ConvertItem(from.GetItem())
+	toTmp.Location = from.GetLocation()
+
+	tmp := Item{}
+	err = tmp.FromProto(from.GetItem())
 	if err != nil {
-		return nil, err
+		return err
 	}
-	to.Item = *tmp
+	toTmp.Item = tmp
 
-	return &to, err
+	if err != nil {
+		return err
+	}
+
+	*to = toTmp
+
+	return nil
 }
 
-// ConvertSmoothItem will convert the proto optimized struct into
+// FromProtoSmoothItem will convert the proto optimized struct into
 // an easier to use go structs
-func ConvertSmoothItem(from *protodef.SmoothItem) (*SmoothItem, error) {
+func (to *SmoothItem) FromProto(from *protodef.SmoothItem) error {
 	var err error
 
 	if from == nil {
-		return nil, nil
+		return nil
 	}
 
-	to := SmoothItem{}
+	toTmp := SmoothItem{}
 
-	tmp, err := ConvertItem(from.GetItem())
+	tmp := Item{}
+	err = tmp.FromProto(from.GetItem())
 	if err != nil {
-		return nil, err
+		return err
 	}
-	to.Item = *tmp
+	toTmp.Item = tmp
 
-	to.Cost = from.GetCost()
+	toTmp.Cost = from.GetCost()
 
-	return &to, err
+	if err != nil {
+		return err
+	}
+
+	*to = toTmp
+
+	return nil
 }
 
-// ConvertItem will convert the proto optimized struct into
+// FromProtoItem will convert the proto optimized struct into
 // an easier to use go structs
-func ConvertItem(from *protodef.Item) (*Item, error) {
+func (to *Item) FromProto(from *protodef.Item) error {
 	var err error
 
 	if from == nil {
-		return nil, nil
+		return nil
 	}
 
-	to := Item{}
+	toTmp := Item{}
 
-	to.Name = from.GetName()
+	toTmp.Name = from.GetName()
 
-	to.Wrinkels = from.GetWrinkels()
+	toTmp.Wrinkels = from.GetWrinkels()
 
-	return &to, err
+	if err != nil {
+		return err
+	}
+
+	*to = toTmp
+
+	return nil
 }
