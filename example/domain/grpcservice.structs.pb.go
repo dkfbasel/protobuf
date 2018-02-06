@@ -24,7 +24,6 @@ var _ = fmt.Errorf
 type WrinkledItem struct {
 	// customer will contain the name of the customer
 	Customer string
-	Location int
 	// nested messages can be embedded directly using the tag compose:"embed"
 	Item `compose:"embed"`
 }
@@ -55,8 +54,6 @@ func (from *WrinkledItem) Proto() (*protodef.WrinkledItem, error) {
 	to := protodef.WrinkledItem{}
 
 	to.Customer = from.Customer
-
-	to.Location = from.Location
 
 	to.Item, err = from.Item.Proto()
 	if err != nil {
@@ -117,8 +114,6 @@ func (to *WrinkledItem) FromProto(from *protodef.WrinkledItem) error {
 	toTmp := WrinkledItem{}
 
 	toTmp.Customer = from.GetCustomer()
-
-	toTmp.Location = from.GetLocation()
 
 	tmp := Item{}
 	err = tmp.FromProto(from.GetItem())

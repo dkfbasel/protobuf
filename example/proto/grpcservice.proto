@@ -9,12 +9,12 @@ service Butler {
 }
 
 // the city where the branch of our company is located
-enum Location {
-	Basel = 0;
-	Zurich = 1;
-	Luzern = 2;
-	Other = 3;
-}
+// enum Location {
+// 	Basel = 0;
+// 	Zurich = 1;
+// 	Luzern = 2;
+// 	Other = 3;
+// }
 
 // WrinkledItem is used for items with multiple wrinkes
 message WrinkledItem {
@@ -22,7 +22,7 @@ message WrinkledItem {
 	// customer will contain the name of the customer
 	string Customer = 1;
 
-	Location Location = 2;
+	// Location Location = 2;
 
 	// nested messages can be embedded directly using the tag compose:"embed"
 	Item Item = 4; // `compose:"embed"`
