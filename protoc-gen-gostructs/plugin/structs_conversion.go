@@ -262,7 +262,7 @@ func generateConvertFnProto(p *plugin, file *generator.FileDescriptor,
 					p.Printf("err = tmp.FromProto(from.Get%s())", fieldNameProto)
 					p.PrintReturnErr("return err")
 
-					p.Printf("toTmp.%s = tmp", fieldNameProto)
+					p.Printf("toTmp.%s = &tmp", fieldNameProto)
 
 					continue
 
