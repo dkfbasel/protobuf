@@ -73,7 +73,7 @@ func generateMessageFields(p *plugin, file *generator.FileDescriptor,
 
 		// print fields without any trailing comments
 		if trailing == "" {
-			p.P(field.GetName(), " ", fieldType(field))
+			p.P(generator.CamelCase(field.GetName()), " ", fieldType(field))
 			continue
 		}
 
@@ -83,7 +83,7 @@ func generateMessageFields(p *plugin, file *generator.FileDescriptor,
 		// handle non message type fields
 		if field.IsMessage() == false {
 			// print the field with comments and tags
-			p.P(field.GetName(), " ", fieldType(field), dta.Output)
+			p.P(generator.CamelCase(field.GetName()), " ", fieldType(field), dta.Output)
 			continue
 		}
 
@@ -99,7 +99,7 @@ func generateMessageFields(p *plugin, file *generator.FileDescriptor,
 		}
 
 		// print the field with comments and tags
-		p.P(field.GetName(), " ", fieldType(field), dta.Output)
+		p.P(generator.CamelCase(field.GetName()), " ", fieldType(field), dta.Output)
 
 	}
 

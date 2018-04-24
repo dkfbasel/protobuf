@@ -35,7 +35,7 @@ func generateConvertFnCustom(p *plugin, file *generator.FileDescriptor,
 			p.P()
 
 			// get the name of the field
-			fieldNameProto := field.GetName()
+			fieldNameProto := generator.CamelCase(field.GetName())
 
 			// get the type of the field
 			ftype := fieldType(field)
@@ -184,7 +184,7 @@ func generateConvertFnProto(p *plugin, file *generator.FileDescriptor,
 			p.P()
 
 			// get the name of the field
-			fieldNameProto := field.GetName()
+			fieldNameProto := generator.CamelCase(field.GetName())
 
 			// get the type of the field
 			ftype := fieldType(field)
