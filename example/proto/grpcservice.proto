@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package grpcservice;
 
+import "dkfbasel/protobuf/timestamp.proto";
+
 // Butler provides handy functions for you
 service Butler {
 	// Iron will take a wrinkled item and remove all wrinkels
@@ -20,22 +22,24 @@ service Butler {
 message WrinkledItem {
 
 	// customer will contain the name of the customer
-	string Customer = 1;
+	string customer = 1;
 
 	// Location Location = 2;
 
 	// nested messages can be embedded directly using the tag compose:"embed"
-	Item Item = 4; // `compose:"embed"`
+	Item item = 4; // `compose:"embed"`
+
+	dkfbasel.protobuf.Timestamp brought_in = 5; // `db:"brought_in_for_something"`
 }
 
 // SmoothItem is used as response with associated costs
 message SmoothItem {
-	Item Item = 1; // `compose:"embed"`
-	int32 Cost = 2; // cost in USD
+	Item item = 1; // `compose:"embed"`
+	int32 cost = 2; // cost in USD
 }
 
 // Item contains the information about a specific item
 message Item {
-	string Name = 1;     // db:"name" json:"name,omitempty"`
-	int32 Wrinkels = 2;  // db:"no_wrinkles" json:"wrinkels,omitempty"`
+	string name = 1;     // `db:"name" json:"name,omitempty"`
+	int32 wrinkels = 2;  // `db:"no_wrinkles" json:"wrinkels,omitempty"`
 }
