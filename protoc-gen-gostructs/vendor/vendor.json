@@ -3,16 +3,28 @@
 	"ignore": "test",
 	"package": [
 		{
-			"checksumSHA1": "FhLvgtYfuKY0ow9wtLJRoeg7d6w=",
+			"checksumSHA1": "ehhDW5xOMs7vp2dxSoKBG8tJSB4=",
 			"path": "github.com/gogo/protobuf/gogoproto",
-			"revision": "26de2f9a7d3b1826f275e7a97c8cad5080589426",
-			"revisionTime": "2018-01-21T16:00:31Z"
+			"revision": "1ef32a8b9fc3f8ec940126907cedb5998f6318e4",
+			"revisionTime": "2018-03-30T17:46:43Z"
 		},
 		{
-			"checksumSHA1": "wn2shNJMwRZpvuvkf1s7h0wvqHI=",
+			"checksumSHA1": "nTHr8B2CPLP8kcJRtBEXluFvzUY=",
 			"path": "github.com/gogo/protobuf/proto",
-			"revision": "26de2f9a7d3b1826f275e7a97c8cad5080589426",
-			"revisionTime": "2018-01-21T16:00:31Z"
+			"revision": "1ef32a8b9fc3f8ec940126907cedb5998f6318e4",
+			"revisionTime": "2018-03-30T17:46:43Z"
+		},
+		{
+			"path": "github.com/gogo/protobuf/protoc-gen-go/descriptor",
+			"revision": ""
+		},
+		{
+			"path": "github.com/gogo/protobuf/protoc-gen-go/generator",
+			"revision": ""
+		},
+		{
+			"path": "github.com/gogo/protobuf/protoc-gen-go/plugin",
+			"revision": ""
 		},
 		{
 			"checksumSHA1": "F+PKpdY6PyIrxQ8b20TzsM+1JuI=",
@@ -33,5 +45,5 @@
 			"revisionTime": "2018-01-21T16:00:31Z"
 		}
 	],
-	"rootPath": "github.com/dkfbasel/protobuf"
+	"rootPath": "github.com/dkfbasel/protobuf/protoc-gen-gostructs"
 }
