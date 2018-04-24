@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package dkfbasel.protobuf;
+
+option go_package = "github.com/dkfbasel/protobuf/types/nullstring";
+
+// NullString ...
+message NullString {
+	// Represents the actual string
+	string text = 1;
+
+	// is set to true if the string is null
+	bool is_null = 2;
+}

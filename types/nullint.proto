@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package dkfbasel.protobuf;
+
+option go_package = "github.com/dkfbasel/protobuf/types/nullint";
+
+// NullInt ...
+message NullInt {
+	// Represents the actual Integer
+	int64 int = 1;
+
+	// is set to true if the integer is null
+	bool is_null = 2;
+}

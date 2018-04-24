@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package dkfbasel.protobuf;
+
+option go_package = "github.com/dkfbasel/protobuf/types/timestamp";
+
+// Timestamp ...
+message Timestamp {
+	// Represents seconds of UTC time since Unix epoch
+	// 1970-01-01T00:00:00Z
+	int64 milliseconds = 1;
+
+	// is set to true if the timestamp is null
+	bool is_null = 2;
+}
