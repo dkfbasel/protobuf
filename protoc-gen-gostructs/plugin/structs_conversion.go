@@ -38,10 +38,12 @@ func generateConvertFnCustom(p *plugin, file *generator.FileDescriptor,
 			fieldNameProto := generator.CamelCase(field.GetName())
 
 			// get the type of the field
-			ftype := fieldType(field)
+			ftype := getFieldType(field)
+			ftype = adaptPackageName(file.GetPackage(), ftype)
 
 			// get the type of the proto field
-			ftypeProto := fieldType(field, "protodef")
+			ftypeProto := getFieldType(field, "protodef")
+			ftypeProto = adaptPackageName(file.GetPackage(), ftypeProto)
 
 			// create the path to the field comment
 			// 4 is for messages, 2 for fields
@@ -99,6 +101,8 @@ func generateConvertFnCustom(p *plugin, file *generator.FileDescriptor,
 					}
 
 					messageName := fieldTypeName(field)
+					messageName = adaptPackageName(file.GetPackage(), messageName)
+
 					p.Printf("to.%s, err = from.%s.Proto()", fieldNameProto, messageName)
 					p.PrintReturnErr()
 					continue
@@ -187,7 +191,8 @@ func generateConvertFnProto(p *plugin, file *generator.FileDescriptor,
 			fieldNameProto := generator.CamelCase(field.GetName())
 
 			// get the type of the field
-			ftype := fieldType(field)
+			ftype := getFieldType(field)
+			ftype = adaptPackageName(file.GetPackage(), ftype)
 
 			// create the path to the field comment
 			// 4 is for messages, 2 for fields
@@ -236,6 +241,7 @@ func generateConvertFnProto(p *plugin, file *generator.FileDescriptor,
 
 				// get the message name of the nested field
 				fieldMessageName := fieldTypeName(field)
+				fieldMessageName = adaptPackageName(file.GetPackage(), fieldMessageName)
 
 				// handle embbeded structs
 				// convert custom embedded struct and assign nested message in proto struct
