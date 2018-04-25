@@ -16,6 +16,12 @@ func (ts *Timestamp) Time() time.Time {
 
 // Scan implements the Scanner interface of the database driver
 func (ts *Timestamp) Scan(value interface{}) error {
+
+	// initialize timestamp if pointer is nil
+	if ts == nil {
+		*ts = Timestamp{}
+	}
+
 	dbTime, isNotNull := value.(time.Time)
 
 	if isNotNull {
