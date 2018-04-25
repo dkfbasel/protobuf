@@ -14,7 +14,6 @@ It has these top-level messages:
 */
 package grpcservice
 
-import protodef "github.com/dkfbasel/protobuf/example/domain/proto"
 import fmt "fmt"
 import dkfbasel_protobuf "github.com/dkfbasel/protobuf/types/timestamp"
 import dkfbasel_protobuf1 "github.com/dkfbasel/protobuf/types/nullstring"
