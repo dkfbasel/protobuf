@@ -36,7 +36,7 @@ func generateStructs(p *plugin, file *generator.FileDescriptor,
 		}
 
 		// print the struct name
-		p.Printf("type %s struct{", structName)
+		p.Printf("type %sAlias struct{", structName)
 		p.In()
 
 		// print the message fields
@@ -71,9 +71,20 @@ func generateMessageFields(p *plugin, file *generator.FileDescriptor,
 		// get the trailing comment
 		trailing := commentline.GetTrailingComments()
 
+		// convert the field name to camel case
+		fieldName := generator.CamelCase(field.GetName())
+
+		// get the unique name of the type
+		fieldType := getFieldType(field)
+		fieldType = adaptPackageName(file.GetPackage(), fieldType)
+
+		if field.IsMessage() {
+			p.Generator.RecordTypeUse(field.GetTypeName())
+		}
+
 		// print fields without any trailing comments
 		if trailing == "" {
-			p.P(generator.CamelCase(field.GetName()), " ", fieldType(field))
+			p.P(fieldName, " ", fieldType)
 			continue
 		}
 
@@ -82,24 +93,26 @@ func generateMessageFields(p *plugin, file *generator.FileDescriptor,
 
 		// handle non message type fields
 		if field.IsMessage() == false {
+
 			// print the field with comments and tags
-			p.P(generator.CamelCase(field.GetName()), " ", fieldType(field), dta.Output)
+			p.P(fieldName, " ", fieldType, dta.Output)
 			continue
 		}
 
-		// handle nested message types
-		if dta.IsEmbedded() {
-
-			if field.IsRepeated() {
-				p.Fail("embedded structs cannot be repeated: ", field.GetName())
-			}
-
-			p.P(fieldTypeName(field), dta.Output)
-			continue
-		}
+		// TODO: handle embedded messages
+		// // handle nested message types
+		// if dta.IsEmbedded() {
+		//
+		// 	if field.IsRepeated() {
+		// 		p.Fail("embedded structs cannot be repeated: ", fieldName)
+		// 	}
+		//
+		// 	p.P(fieldType, dta.Output)
+		// 	continue
+		// }
 
 		// print the field with comments and tags
-		p.P(generator.CamelCase(field.GetName()), " ", fieldType(field), dta.Output)
+		p.P(fieldName, " ", fieldType, dta.Output)
 
 	}
 
