@@ -16,170 +16,30 @@ package grpcservice
 
 import protodef "github.com/dkfbasel/protobuf/example/domain/proto"
 import fmt "fmt"
+import dkfbasel_protobuf "github.com/dkfbasel/protobuf/types/timestamp"
+import dkfbasel_protobuf1 "github.com/dkfbasel/protobuf/types/nullstring"
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = fmt.Errorf
 
 // WrinkledItem is used for items with multiple wrinkes
-type WrinkledItem struct {
+type WrinkledItemAlias struct {
 	// customer will contain the name of the customer
 	Customer string
 	// nested messages can be embedded directly using the tag compose:"embed"
-	Item `compose:"embed"`
+	Item               *Item                        `compose:"embed"`
+	BroughtIn          *dkfbasel_protobuf.Timestamp `db:"brought_in_for_something"`
+	ThisCouldBeNothing *dkfbasel_protobuf1.NullString
 }
 
 // SmoothItem is used as response with associated costs
-type SmoothItem struct {
-	Item `compose:"embed"`
+type SmoothItemAlias struct {
+	Item *Item `compose:"embed"`
 	Cost int32 // cost in USD
 }
 
 // Item contains the information about a specific item
-type Item struct {
-	Name     string // db:"name" json:"name,omitempty"`
-	Wrinkels int32  // db:"no_wrinkles" json:"wrinkels,omitempty"`
-}
-
-// --- STRUCT CONVERSION ---
-
-// Proto will convert our custom type to a struct that can be
-// serialized as protobuf
-func (from *WrinkledItem) Proto() (*protodef.WrinkledItem, error) {
-	var err error
-
-	if from == nil {
-		return nil, nil
-	}
-
-	to := protodef.WrinkledItem{}
-
-	to.Customer = from.Customer
-
-	to.Item, err = from.Item.Proto()
-	if err != nil {
-		return nil, err
-	}
-
-	return &to, err
-}
-
-// Proto will convert our custom type to a struct that can be
-// serialized as protobuf
-func (from *SmoothItem) Proto() (*protodef.SmoothItem, error) {
-	var err error
-
-	if from == nil {
-		return nil, nil
-	}
-
-	to := protodef.SmoothItem{}
-
-	to.Item, err = from.Item.Proto()
-	if err != nil {
-		return nil, err
-	}
-
-	to.Cost = from.Cost
-
-	return &to, err
-}
-
-// Proto will convert our custom type to a struct that can be
-// serialized as protobuf
-func (from *Item) Proto() (*protodef.Item, error) {
-	var err error
-
-	if from == nil {
-		return nil, nil
-	}
-
-	to := protodef.Item{}
-
-	to.Name = from.Name
-
-	to.Wrinkels = from.Wrinkels
-
-	return &to, err
-}
-
-// FromProtoWrinkledItem will convert the proto optimized struct into
-// an easier to use go structs
-func (to *WrinkledItem) FromProto(from *protodef.WrinkledItem) error {
-	var err error
-
-	if from == nil {
-		return nil
-	}
-
-	toTmp := WrinkledItem{}
-
-	toTmp.Customer = from.GetCustomer()
-
-	tmp := Item{}
-	err = tmp.FromProto(from.GetItem())
-	if err != nil {
-		return err
-	}
-	toTmp.Item = tmp
-
-	if err != nil {
-		return err
-	}
-
-	*to = toTmp
-
-	return nil
-}
-
-// FromProtoSmoothItem will convert the proto optimized struct into
-// an easier to use go structs
-func (to *SmoothItem) FromProto(from *protodef.SmoothItem) error {
-	var err error
-
-	if from == nil {
-		return nil
-	}
-
-	toTmp := SmoothItem{}
-
-	tmp := Item{}
-	err = tmp.FromProto(from.GetItem())
-	if err != nil {
-		return err
-	}
-	toTmp.Item = tmp
-
-	toTmp.Cost = from.GetCost()
-
-	if err != nil {
-		return err
-	}
-
-	*to = toTmp
-
-	return nil
-}
-
-// FromProtoItem will convert the proto optimized struct into
-// an easier to use go structs
-func (to *Item) FromProto(from *protodef.Item) error {
-	var err error
-
-	if from == nil {
-		return nil
-	}
-
-	toTmp := Item{}
-
-	toTmp.Name = from.GetName()
-
-	toTmp.Wrinkels = from.GetWrinkels()
-
-	if err != nil {
-		return err
-	}
-
-	*to = toTmp
-
-	return nil
+type ItemAlias struct {
+	Name     string `db:"name" json:"name,omitempty"`
+	Wrinkels int32  `db:"no_wrinkles" json:"wrinkels,omitempty"`
 }

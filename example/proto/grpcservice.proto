@@ -3,6 +3,7 @@ syntax = "proto3";
 package grpcservice;
 
 import "dkfbasel/protobuf/timestamp.proto";
+import "dkfbasel/protobuf/nullstring.proto";
 
 // Butler provides handy functions for you
 service Butler {
@@ -30,6 +31,8 @@ message WrinkledItem {
 	Item item = 4; // `compose:"embed"`
 
 	dkfbasel.protobuf.Timestamp brought_in = 5; // `db:"brought_in_for_something"`
+
+	dkfbasel.protobuf.NullString this_could_be_nothing = 6;
 }
 
 // SmoothItem is used as response with associated costs
