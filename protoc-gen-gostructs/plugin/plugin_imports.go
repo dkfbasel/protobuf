@@ -14,9 +14,10 @@ type CustomPluginImports struct {
 
 // NewPluginImports will generate a new custom plugin import struct
 func NewPluginImports(generator *generator.Generator) *CustomPluginImports {
+
 	return &CustomPluginImports{
-		generator,
-		make(map[string]string),
+		generator: generator,
+		imports:   make(map[string]string),
 	}
 }
 
