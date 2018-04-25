@@ -2,53 +2,27 @@
 package main
 
 import (
-	"fmt"
+	"database/sql"
+	"io/ioutil"
 
-	// without explicit naming the package name would be grpcservide
-	// (as defined in the protobuf definition)
-	domain "github.com/dkfbasel/protobuf/example/domain"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 func main() {
-
-	fmt.Println("- Create a new item to be ironed")
-
-	item := domain.Item{}
-	item.Name = "Shirt"
-
-	fmt.Println("- Make a wrinkled item out of it")
-
-	wrinkled := domain.WrinkledItem{Item: item}
-	wrinkled.Customer = "A custom conscious guy"
-	wrinkled.Wrinkels = 23
-
-	fmt.Println("- Convert the wrinkled item for protobuf transmission")
-	wrinkledProto, err := wrinkled.Proto()
+	db, err := sql.Open("mysql", "root@/startrek")
 	if err != nil {
-		fmt.Println("-- error: could not convert to protobuf struct: ", err)
+		panic(err.Error())
 	}
 
-	fmt.Printf("-- protobuf: %v\n", wrinkledProto)
-
-	fmt.Println("- Convert back to our custom struct")
-	newWrinkled := domain.WrinkledItem{}
-	err = newWrinkled.FromProto(wrinkledProto)
+	setupStmt, err := ioutil.ReadFile("sql/setup.sql")
 	if err != nil {
-		fmt.Println("-- error: could not convert to protobuf struct: ", err)
+		panic(err.Error())
 	}
 
-	fmt.Println("- Iron out the wrinkles (one was forgotten)")
-	unwrinkled := domain.SmoothItem{}
-	unwrinkled.Item = newWrinkled.Item
-	unwrinkled.Wrinkels = 1
-	unwrinkled.Cost = 50
-
-	fmt.Println("- Convert the unwrinkled shirt for protobuf transmission")
-	unwrinkledProto, err := unwrinkled.Proto()
+	_, err = db.Exec(string(setupStmt))
 	if err != nil {
-		fmt.Println("-- error: could not convert to protobuf struct: ", err)
+		panic(err.Error())
 	}
 
-	fmt.Printf("-- protobuf: %v\n", unwrinkledProto)
-
+	defer db.Close() // nolint: errcheck
 }
