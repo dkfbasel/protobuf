@@ -7,9 +7,9 @@ import (
 	"github.com/gogo/protobuf/protoc-gen-gogo/descriptor"
 )
 
-// fieldtypes is used to specify the types to use in go for specified
+// getfieldType is used to specify the types to use in go for specified
 // proto field types
-func fieldType(field *descriptor.FieldDescriptorProto, prefixes ...string) string {
+func getFieldType(field *descriptor.FieldDescriptorProto, prefixes ...string) string {
 
 	name := fieldTypeName(field)
 
@@ -88,7 +88,7 @@ func fieldTypeName(field *descriptor.FieldDescriptorProto) string {
 		return "int"
 
 	case "TYPE_MESSAGE":
-		return shortName(field.GetTypeName())
+		return field.GetTypeName()
 
 	default:
 		return "UNDEFINED:" + name
@@ -100,4 +100,26 @@ func fieldTypeName(field *descriptor.FieldDescriptorProto) string {
 func shortName(name string) string {
 	parts := strings.Split(name, ".")
 	return parts[len(parts)-1]
+}
+
+func adaptPackageName(pkgName string, name string) string {
+
+	// remove the local package name from the type
+	// i.e. .grpservice.Item -> .Item
+	name = strings.Replace(name, fmt.Sprintf(".%s", pkgName), "", -1)
+
+	// remove the trailing dot
+	// i.e. *.dkfbasel.types.Timestamp -> dkfbasel.types.Timestamp
+	name = strings.Replace(name, ".", "", 1)
+
+	// count the remaining number of points in the string
+	// i.e. dkfbasel.types.Timestamp
+	pointCount := strings.Count(name, ".")
+
+	// replace all points except for the last with underscores
+	// i.e. dkfbasel.types.Timestamp -> dkfbasel_types.Timestamp
+	name = strings.Replace(name, ".", "_", pointCount-1)
+
+	return name
+
 }

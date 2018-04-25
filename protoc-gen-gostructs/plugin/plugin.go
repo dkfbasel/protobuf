@@ -34,14 +34,6 @@ func (p *plugin) Generate(file *generator.FileDescriptor) {
 	// we use a custom struct to handle package imports
 	p.PluginImports = NewPluginImports(p.Generator)
 
-	importPath := p.Param["import"]
-	if importPath == "" {
-		importPath = ".."
-	}
-
-	// create a new import for proto definitions to enable type conversion
-	p.NewImport(fmt.Sprintf("protodef:::%s", importPath))
-
 	// extract all comments from the file into a map with the path
 	// to the comment as key
 	comments := extractComments(file)
@@ -59,11 +51,12 @@ func (p *plugin) Generate(file *generator.FileDescriptor) {
 	// generate custom structs
 	generateStructs(p, file, comments, pathIndex)
 
-	p.P("\n // --- STRUCT CONVERSION --- \n")
+	// NOTE: conversion functions are killed for now. it's just to complicated
+	// p.P("\n // --- STRUCT CONVERSION --- \n")
 
-	// generate functions to convert structs
-	generateConvertFnCustom(p, file, comments, pathIndex)
-	generateConvertFnProto(p, file, comments, pathIndex)
+	// // generate functions to convert structs
+	// generateConvertFnCustom(p, file, comments, pathIndex)
+	// generateConvertFnProto(p, file, comments, pathIndex)
 
 }
 

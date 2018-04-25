@@ -7,8 +7,11 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
+	"regexp"
 	"strings"
 
 	"github.com/dkfbasel/protobuf/protoc-gen-gostructs/plugin"
@@ -36,23 +39,24 @@ func main() {
 	}
 
 	// get command line paramenters
-	gen.CommandLineParameters(gen.Request.GetParameter())
-
-	if gen.Param["import"] == "" {
-		gen.Fail("import parameter must be specified to access the proto structs")
-	}
+	// gen.CommandLineParameters(gen.Request.GetParameter())
 
 	// wrap all descriptor and file descriptors
 	gen.WrapTypes()
 
-	// set the pacakge name to be used
+	// set the package name to be used
 	gen.SetPackageNames()
 
 	// build map of types
 	gen.BuildTypeNameMap()
 
-	// generate a plugin to handle all files
+	// use a custom plugin to generate the output
 	gen.GeneratePlugin(plugin.New())
+
+	regxImport, err := regexp.Compile(`import (.*) "github.com\/dkfbasel\/protobuf\/types\/(.*)"`)
+	if err != nil {
+		log.Fatalln("could not compile regular expression")
+	}
 
 	// go through all input files and define the name of the output
 	for i := 0; i < len(gen.Response.File); i++ {
@@ -75,9 +79,32 @@ func main() {
 		newContent = strings.Replace(newContent, "var _ = proto.Marshal\n", "", -1)
 		newContent = strings.Replace(newContent, "var _ = math.Inf\n", "", -1)
 
+		// fix imports for our types
+		// note: this will only work very specifically for the dkfbasel protobuf package
+
+		// get all package names for our types
+		dkfPackages := regxImport.FindAllStringSubmatch(newContent, -1)
+
+		for _, importMatch := range dkfPackages {
+
+			// match the type of the package case insensitive
+			typeMatch := regexp.MustCompile(fmt.Sprintf(`(?i)dkfbasel_protobuf\.%s`, importMatch[2]))
+
+			// i.e. find dkfbasel_protobuf.Timestamp
+			replaceMatch := typeMatch.FindString(newContent)
+
+			// replace the package
+			// i.e. dkfbasel_protobuf.Timestamp -> dkfbasel_protobuf1.Timestamp
+			replaceWith := strings.Replace(replaceMatch, "dkfbasel_protobuf", importMatch[1], -1)
+
+			// replache all occurances in the content
+			newContent = strings.Replace(newContent, replaceMatch, replaceWith, -1)
+
+		}
+
 		gen.Response.File[i].Content = &newContent
 
-		newFileName := strings.Replace(*gen.Response.File[i].Name, ".pb.go", ".structs.pb.go", -1)
+		newFileName := strings.Replace(*gen.Response.File[i].Name, ".pb.go", ".alias.go", -1)
 
 		gen.Response.File[i].Name = proto.String(newFileName)
 
