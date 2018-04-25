@@ -24,6 +24,6 @@ var _ = fmt.Errorf
 type StarfleetShipAlias struct {
 	Name          string                         `db:"name"`
 	Passengers    *dkfbasel_protobuf2.NullInt    `db:"passengers"`
-	Operation     *dkfbasel_protobuf1.NullString `db:"operation"`
+	Mission       *dkfbasel_protobuf1.NullString `db:"mission"`
 	DepartureTime *dkfbasel_protobuf.Timestamp   `db:"departure_time_of_ship"`
 }
