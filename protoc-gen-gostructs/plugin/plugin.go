@@ -56,8 +56,6 @@ func (p *plugin) Generate(file *generator.FileDescriptor) {
 		pathIndex[message.GetName()] = fmt.Sprintf("4,%d", mIndex)
 	}
 
-	// p.P("func test() ", p.httpPkg, ".something{}")
-
 	// generate custom structs
 	generateStructs(p, file, comments, pathIndex)
 
