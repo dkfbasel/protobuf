@@ -4,7 +4,7 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
@@ -15,10 +15,11 @@ import (
 
 func main() {
 
-	// initialize database connection
-	db, err := sqlx.Connect("mysql", "commander:123456@tcp(0.0.0.0:3333)/startrek?multiStatements=true&parseTime=true")
+	// initialize db connection
+	db, err := databaseConnect()
+	// could not find database connection
 	if err != nil {
-		log.Fatalln(err)
+		panic(err.Error())
 	}
 	defer db.Close() // nolint: errcheck
 
@@ -109,4 +110,38 @@ func main() {
 	if err != nil {
 		panic(err.Error())
 	}
+}
+
+// databaseConnect handles the database connection and returns a sqlx database
+// if the connection is ready
+func databaseConnect() (*sqlx.DB, error) {
+
+	// try to initialize database connection
+	db, err := sqlx.Connect("mysql", "commander:123456@tcp(mysql:3306)/startrek?multiStatements=true&parseTime=true")
+	iter := 0
+
+	for iter < 100 && err != nil {
+		time.Sleep(time.Second)
+		db, err = sqlx.Connect("mysql", "commander:123456@tcp(mysql:3306)/startrek?multiStatements=true&parseTime=true")
+	}
+
+	// could not connect to the database
+	if err != nil {
+		return nil, err
+	}
+
+	// try to connect to the database
+	err = db.Ping()
+	iter = 0
+	for iter < 100 && err != nil {
+		time.Sleep(time.Second)
+		err = db.Ping()
+	}
+
+	// could not ping the database
+	if err != nil {
+		return nil, err
+	}
+
+	return db, nil
 }
