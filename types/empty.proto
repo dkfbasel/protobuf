@@ -2,5 +2,7 @@ syntax = "proto3";
 
 package dkfbasel.protobuf;
 
+option go_package = "github.com/dkfbasel/protobuf/types/empty";
+
 // Empty ...
 message Empty {}
