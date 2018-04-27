@@ -1,19 +1,39 @@
 package nullstring
 
 import (
+	"database/sql"
 	"database/sql/driver"
 	"fmt"
 )
 
 // Scan implements the Scanner interface of the database driver
 func (ns *NullString) Scan(value interface{}) error {
+
+	// if the nullstring is nil, initialize it
+	if ns == nil {
+		*ns = NullString{}
+	}
+
+	// if the value is nil, reset the data of the nullstring
 	if value == nil {
+
 		ns.Text = ""
 		ns.IsNull = true
 		return nil
 	}
+
+	// create a sql NullString to use the not exported convertAssign-method
+	// of the golang sql package
+	sqlString := sql.NullString{}
+
+	// scan the value, using the sql package
+	err := sqlString.Scan(value)
+	if err != nil {
+		return err
+	}
+
 	ns.IsNull = false
-	ns.Text = value.(string)
+	ns.Text = sqlString.String
 	return nil
 }
 

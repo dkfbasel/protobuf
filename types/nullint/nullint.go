@@ -1,19 +1,39 @@
 package nullint
 
 import (
+	"database/sql"
 	"database/sql/driver"
 	"fmt"
 )
 
 // Scan implements the Scanner interface of the database driver
 func (ni *NullInt) Scan(value interface{}) error {
+
+	// if the nullstring is nil, initialize it
+	if ni == nil {
+		*ni = NullInt{}
+	}
+
+	// if the value is nil, reset the data of the nullstring
 	if value == nil {
+
 		ni.Int = 0
 		ni.IsNull = true
 		return nil
+
+	}
+
+	// create a sql NullInt64 to use the not exported convertAssign-method
+	// of the golang sql package
+	sqlInt := sql.NullInt64{}
+
+	// scan the value, using the sql package
+	err := sqlInt.Scan(value)
+	if err != nil {
+		return err
 	}
 	ni.IsNull = false
-	ni.Int = value.(int64)
+	ni.Int = sqlInt.Int64
 	return nil
 }
 
