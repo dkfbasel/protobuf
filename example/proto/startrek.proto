@@ -8,7 +8,7 @@ import "dkfbasel/protobuf/nullint.proto";
 
 message StarfleetShip {
 
-	string name = 1;
+	string name = 1; // comments on the same line will be stripped by the protoc grpc plugin
 
 	dkfbasel.protobuf.NullInt no_of_passengers = 2;
 	dkfbasel.protobuf.NullString mission_statement = 3;
