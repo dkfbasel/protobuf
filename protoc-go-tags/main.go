@@ -75,7 +75,7 @@ func addGoTags(path string) error {
 }
 
 // define a visitor struct to handle every ast node
-type visitor int
+type visitor struct{}
 
 // Visit will find all fields in the code and add tags that are placed
 // in the comment above the field as struct tags to the field
@@ -142,7 +142,7 @@ func (v visitor) Visit(n ast.Node) ast.Visitor {
 
 	}
 
-	return v + 1
+	return v
 
 }
 
