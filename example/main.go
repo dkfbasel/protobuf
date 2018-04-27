@@ -8,6 +8,7 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
+	mappingFn "github.com/segmentio/go-snakecase"
 
 	startrek "github.com/dkfbasel/protobuf/example/domain"
 	"github.com/dkfbasel/protobuf/types/nullstring"
@@ -29,7 +30,10 @@ func main() {
 
 	// adapt the db mapper function to use snake case
 	// refer to sqlx documentation for this
-	db.MapperFunc(dbNameSnakeCaseMapper)
+
+	// note: this should be a rather fast function, as it is called every
+	// time that named structs are used with sqlx
+	db.MapperFunc(mappingFn.Snakecase)
 
 	// create table starfleet and insert some test data
 	setupStmt, err := ioutil.ReadFile("sql/setup.sql")
