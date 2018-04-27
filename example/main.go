@@ -15,15 +15,23 @@ import (
 
 func main() {
 
+	fmt.Println("- run example")
+
 	// initialize db connection
 	db, err := databaseConnect()
+
 	// could not find database connection
 	if err != nil {
 		panic(err.Error())
 	}
+
 	defer db.Close() // nolint: errcheck
 
-	// create table starfleet and insert data
+	// adapt the db mapper function to use snake case
+	// refer to sqlx documentation for this
+	db.MapperFunc(dbNameSnakeCaseMapper)
+
+	// create table starfleet and insert some test data
 	setupStmt, err := ioutil.ReadFile("sql/setup.sql")
 	if err != nil {
 		panic(err.Error())
@@ -34,82 +42,61 @@ func main() {
 		panic(err.Error())
 	}
 
-	// initialize a grcp struct
-	starshipFleetShip := startrek.StarfleetShip{}
-
-	// create an alias containing db tags
-	databaseAlias := startrek.StarfleetShipAlias(starshipFleetShip)
-
 	// select the uss enterprise from the database
 	stmt := `
-	SELECT name, passengers, mission, departure_time_of_ship
+	SELECT name, no_of_passengers, mission_statement, we_are_leaving_at
 	FROM starfleet
 	WHERE name = "USS Enterprise"
 	ORDER BY id DESC
 	LIMIT 1;`
 
-	err = db.Get(&databaseAlias, stmt)
+	// initialize a grcp struct that will be filled from the database
+	// directly
+	var starshipFleetShip startrek.StarfleetShip
+	err = db.Get(&starshipFleetShip, stmt)
 	if err != nil {
 		panic(err.Error())
 	}
 
 	// the USS Entripse has a passenger capacity of 1012 persons
 	// and is not on a mission right now
-	starshipFleetShip = startrek.StarfleetShip(databaseAlias)
 	fmt.Println()
 	fmt.Println("---- USS Enterprise: Without mission ----")
 	fmt.Printf("%+v\n", starshipFleetShip)
 
 	// set a mission for the USS Enterprise
-	starshipFleetShip.Mission = &nullstring.NullString{}
-	starshipFleetShip.Mission.Text = "Training mission"
-	starshipFleetShip.Mission.IsNull = false
+	starshipFleetShip.MissionStatement = &nullstring.NullString{}
+	starshipFleetShip.MissionStatement.Text = "Training mission"
+	starshipFleetShip.MissionStatement.IsNull = false
 
-	// save the USS Enterprise in the database with the new mission
-	databaseAlias = startrek.StarfleetShipAlias(starshipFleetShip)
+	// update the USS Enterprise information in the database
 	stmt = `
-	INSERT INTO starfleet (name, passengers, mission, departure_time_of_ship)
-	VALUES (:name, :passengers, :mission, :departure_time_of_ship);`
-	_, err = db.NamedExec(stmt, databaseAlias)
+	INSERT INTO starfleet (name, no_of_passengers, mission_statement, we_are_leaving_at)
+	VALUES (:name, :no_of_passengers, :mission_statement, :we_are_leaving_at);`
+
+	_, err = db.NamedExec(stmt, starshipFleetShip)
 	if err != nil {
 		panic(err.Error())
 	}
 
-	// reinitialize the ship
-	starshipFleetShip = startrek.StarfleetShip{}
-
-	// create an alias containing db tags
-	databaseAlias = startrek.StarfleetShipAlias(starshipFleetShip)
-
-	// select the uss enterprise from the database
+	// select the uss enterprise from the database agan
 	stmt = `
-	SELECT name, passengers, mission, departure_time_of_ship
+	SELECT name, no_of_passengers, mission_statement, we_are_leaving_at
 	FROM starfleet
 	WHERE name = "USS Enterprise"
 	ORDER BY id DESC
 	LIMIT 1;`
 
-	err = db.Get(&databaseAlias, stmt)
+	err = db.Get(&starshipFleetShip, stmt)
 	if err != nil {
 		panic(err.Error())
 	}
 
 	// print USS Enterprise with mission
-	starshipFleetShip = startrek.StarfleetShip(databaseAlias)
 	fmt.Println()
 	fmt.Println("--- USS Enterprise: With mission ----")
-	fmt.Printf("%+v\n", databaseAlias)
+	fmt.Printf("%+v\n", starshipFleetShip)
 
-	// remove the table
-	clearStmt, err := ioutil.ReadFile("sql/clear.sql")
-	if err != nil {
-		panic(err.Error())
-	}
-
-	_, err = db.Exec(string(clearStmt))
-	if err != nil {
-		panic(err.Error())
-	}
 }
 
 // databaseConnect handles the database connection and returns a sqlx database
@@ -117,12 +104,16 @@ func main() {
 func databaseConnect() (*sqlx.DB, error) {
 
 	// try to initialize database connection
-	db, err := sqlx.Connect("mysql", "commander:123456@tcp(mysql:3306)/startrek?multiStatements=true&parseTime=true")
+	db, err := sqlx.Connect(
+		"mysql",
+		"commander:123456@tcp(starfleet_mysql:3306)/startrek?multiStatements=true&parseTime=true")
 	iter := 0
 
 	for iter < 100 && err != nil {
 		time.Sleep(time.Second)
-		db, err = sqlx.Connect("mysql", "commander:123456@tcp(mysql:3306)/startrek?multiStatements=true&parseTime=true")
+		db, err = sqlx.Connect(
+			"mysql",
+			"commander:123456@tcp(starfleet_mysql:3306)/startrek?multiStatements=true&parseTime=true")
 	}
 
 	// could not connect to the database

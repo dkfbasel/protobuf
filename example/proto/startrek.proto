@@ -7,7 +7,9 @@ import "dkfbasel/protobuf/nullstring.proto";
 import "dkfbasel/protobuf/nullint.proto";
 
 message StarfleetShip {
+
 	string name = 1;
+
 	dkfbasel.protobuf.NullInt no_of_passengers = 2;
 	dkfbasel.protobuf.NullString mission_statement = 3;
 

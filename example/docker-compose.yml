@@ -1,17 +1,20 @@
 version: '3'
 
 services:
+
   starfleet_mysql:
     image: mysql:5.7
     container_name: starfleet_mysql
-    # mapping external:internal ports
     ports:
       - 3333:3306
+    logging:
+      driver: "none"
     environment:
       - MYSQL_RANDOM_ROOT_PASSWORD=true
       - MYSQL_DATABASE=startrek
       - MYSQL_USER=commander
       - MYSQL_PASSWORD=123456
+
   starfleet_example:
     image: dkfbasel/hot-reload-go:1.9.2
     dns_search: .
@@ -23,5 +26,3 @@ services:
     environment:
       - PROJECT=github.com/dkfbasel/protobuf/example
       - CMD=build
-    links:
-      - starfleet_mysql:mysql
