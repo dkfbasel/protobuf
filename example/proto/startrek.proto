@@ -7,8 +7,11 @@ import "dkfbasel/protobuf/nullstring.proto";
 import "dkfbasel/protobuf/nullint.proto";
 
 message StarfleetShip {
-	string name = 1;                                // `db:"name"`
-	dkfbasel.protobuf.NullInt passengers = 2;       // `db:"passengers"`
-	dkfbasel.protobuf.NullString operation = 3;     // `db:"operation"`
-	dkfbasel.protobuf.Timestamp departure_time = 4; // `db:"departure_time_of_ship"`
+	string name = 1;
+	dkfbasel.protobuf.NullInt no_of_passengers = 2;
+	dkfbasel.protobuf.NullString mission_statement = 3;
+
+	// use a different db column name for the departure time
+	// `db:"we_are_leaving_at"`
+	dkfbasel.protobuf.Timestamp departure_time = 4;
 }
