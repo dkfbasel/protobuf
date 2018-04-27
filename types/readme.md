@@ -19,9 +19,9 @@ import "dkfbasel/protobuf/nullstring.proto";
 import "dkfbasel/protobuf/nullint.proto";
 
 message StarfleetShip {
-	string name = 1;                                // `db:"name"`
-	dkfbasel.protobuf.NullInt passengers = 2;       // `db:"passengers"`
-	dkfbasel.protobuf.NullString mission = 3;       // `db:"mission"`
-	dkfbasel.protobuf.Timestamp departure_time = 4; // `db:"departure_time_of_ship"`
+	string name = 1;
+	dkfbasel.protobuf.NullInt passengers = 2;
+	dkfbasel.protobuf.NullString mission = 3;
+	dkfbasel.protobuf.Timestamp departure_time = 4;
 }
 ```
