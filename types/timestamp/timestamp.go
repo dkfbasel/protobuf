@@ -14,6 +14,18 @@ func (ts *Timestamp) Time() time.Time {
 	return time.Unix(0, ts.Milliseconds*1000*1000)
 }
 
+// Set will set the timestamp to the given time
+func (ts *Timestamp) Set(timepoint time.Time) {
+	ts.Milliseconds = timepoint.UnixNano() / 1000 / 1000
+	ts.IsNull = false
+}
+
+// Clear will clear the timestamp
+func (ts *Timestamp) Clear() {
+	ts.Milliseconds = 0
+	ts.IsNull = true
+}
+
 // Scan implements the Scanner interface of the database driver
 func (ts *Timestamp) Scan(value interface{}) error {
 
