@@ -16,12 +16,22 @@ func (ts *Timestamp) Time() time.Time {
 
 // Set will set the timestamp to the given time
 func (ts *Timestamp) Set(timepoint time.Time) {
+
+	if ts == nil {
+		*ts = Timestamp{}
+	}
+
 	ts.Milliseconds = timepoint.UnixNano() / 1000 / 1000
 	ts.IsNull = false
 }
 
 // Clear will clear the timestamp
 func (ts *Timestamp) Clear() {
+
+	if ts == nil {
+		return
+	}
+
 	ts.Milliseconds = 0
 	ts.IsNull = true
 }
