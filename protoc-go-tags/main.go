@@ -130,7 +130,7 @@ func (v visitor) Visit(node ast.Node) ast.Visitor {
 				// unshift current tag
 				curTag := strings.Trim(basicLit.Value, "`")
 				commentTags = append([]string{curTag}, commentTags...)
-				basicLit.Value = override(commentTags)
+				basicLit.Value = overrideTags(commentTags)
 			}
 
 			return true
@@ -145,12 +145,12 @@ func (v visitor) Visit(node ast.Node) ast.Visitor {
 // the tag comes later will override the before
 // example:
 // `tag:"default" tag:"1" tag:"2"` will be overrided to `tag:"2"`
-func override(tags []string) string {
+func overrideTags(tags []string) string {
 	var tagMap map[string]string = make(map[string]string)
 	var tagNames []string
 	var buf []string
 
-	// pick every one tag pair
+	// pick every tag pair
 	for _, match := range tagExp.FindAllStringSubmatch(strings.Join(tags, " "), -1) {
 		if len(match) == 3 {
 			// override the tag
