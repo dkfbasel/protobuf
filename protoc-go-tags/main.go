@@ -17,10 +17,17 @@ import (
 
 func main() {
 	var directory string
+	var path string
+	var filepathErr error
 	flag.StringVar(&directory, "dir", ".", "directory to search for pb files")
+	flag.StringVar(&path, "path", "", "pb file path")
 	flag.Parse()
 
-	filepathErr := filepath.Walk(directory, walker)
+	if len(path) != 0 {
+		filepathErr = addGoTags(path)
+	} else {
+		filepathErr = filepath.Walk(directory, walker)
+	}
 
 	if filepathErr != nil {
 		log.Printf("could not correctly handle directory: %v\n", filepathErr)
@@ -169,4 +176,5 @@ var tagExp = regexp.MustCompile(`([_a-z][_\w]*):("[^"]+")`)
 
 // commentTagExp will find tag expressions in comments which match the syntax
 // "// `tagName:"tagValues"`"
+// "// `tagName:"tagValues" secondTagName:"secondTagValues"`"
 var commentTagExp = regexp.MustCompile("^//\\s*`(([_a-z][_\\w]*:\"[^\"]+\")(\\s+[_a-z][_\\w]*:\"[^\"]+\")*)`$")
