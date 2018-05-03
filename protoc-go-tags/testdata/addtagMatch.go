@@ -28,7 +28,7 @@ var _ = math.Inf
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
 type Pair struct {
-	// the comment does not match syntax
+	// the comment does not match syntax, but contains tag syntax `db:"int"`
 	// `foo:"bar"`
 	Key   string `protobuf:"bytes,1,opt,name=key" json:"key,omitempty"`
 	Value string `protobuf:"bytes,2,opt,name=value" json:"value,omitempty"`
