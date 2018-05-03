@@ -84,7 +84,7 @@ func TestProtocGoTags(t *testing.T) {
 		}
 
 		// run go tags on the temp file
-		parseError := addGoTags(tmpfile.Name())
+		parseError := applyStructTags(tmpfile.Name())
 
 		if expectParseError == true && parseError != nil {
 			t.Logf("Test %s successful\n", testName)

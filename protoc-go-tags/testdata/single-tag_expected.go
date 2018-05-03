@@ -29,7 +29,7 @@ const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
 type Pair struct {
 	// `foo:"bar"`
-	Key   string `foo:"bar" json:"key,omitempty" protobuf:"bytes,1,opt,name=key"`
+	Key   string `protobuf:"bytes,1,opt,name=key" json:"key,omitempty" foo:"bar"`
 	Value string `protobuf:"bytes,2,opt,name=value" json:"value,omitempty"`
 }
 
