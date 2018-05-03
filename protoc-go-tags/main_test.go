@@ -37,10 +37,12 @@ func TestAddGoTags(t *testing.T) {
 		err = addGoTags(path)
 		if sample.Error {
 			if err == nil {
-				t.Errorf("TestCase %s execpt some error, but got nil\n")
+				t.Errorf("TestCase %s execpt some error, but got nil\n",
+						 sample.Name)
 			}
 		} else if err != nil {
-			t.Errorf("TestCase %s execpt no error, but got %v\n", err)
+			t.Errorf("TestCase %s execpt no error, but got %v\n",
+					  sample.Name, err)
 		} else {
 			file, err := os.Open(path)
 			if err != nil {
@@ -68,7 +70,7 @@ func TestAddGoTags(t *testing.T) {
 
 			if string(output) != string(stand) {
 				t.Errorf("TestCase %s except\n%s\n, but got\n%s\n",
-					string(stand), string(output))
+					     sample.Name, string(stand), string(output))
 			}
 		}
 	}
