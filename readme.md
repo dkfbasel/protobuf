@@ -13,7 +13,7 @@ to add your additional go tags. This should be somewhat more reliable than
 regular expressions alone.
 
 Struct tags must be placed on a separate comment line, but can contain multiple
-tags: `// \`db:"myname" json:"my_name"`
+tags.
 
 ```
 // proto definitions
