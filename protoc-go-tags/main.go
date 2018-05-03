@@ -16,22 +16,35 @@ import (
 )
 
 func main() {
+
 	var directory string
-	var path string
-	var filepathErr error
-	flag.StringVar(&directory, "dir", ".", "directory to search for pb files")
-	flag.StringVar(&path, "path", "", "pb file path")
+	flag.StringVar(&directory, "dir", ".", "directory to search for pb files or single file")
 	flag.Parse()
 
-	if len(path) != 0 {
-		filepathErr = addGoTags(path)
-	} else {
-		filepathErr = filepath.Walk(directory, walker)
+	fileinfo, err := os.Stat(directory)
+	if err != nil {
+		log.Printf("could not open file or directory: %s, %v\n", directory, err)
+		return
 	}
 
-	if filepathErr != nil {
-		log.Printf("could not correctly handle directory: %v\n", filepathErr)
+	var parseError error
+
+	// enable parsing of single files or directories
+	switch fileinfo.IsDir() {
+
+	case false:
+		// handle single files
+		parseError = addGoTags(directory)
+
+	case true:
+		// handle all files in the given directory
+		parseError = filepath.Walk(directory, walker)
 	}
+
+	if parseError != nil {
+		log.Printf("error while parsing files: %s, %v\n", directory, err)
+	}
+
 }
 
 // walk over target directory
