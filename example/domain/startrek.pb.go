@@ -31,9 +31,9 @@ var _ = math.Inf
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
 type StarfleetShip struct {
-	Name             string                         `protobuf:"bytes,1,opt,name=name" json:"name,omitempty" `
-	NoOfPassengers   *dkfbasel_protobuf2.NullInt    `protobuf:"bytes,2,opt,name=no_of_passengers,json=noOfPassengers" json:"no_of_passengers,omitempty" `
-	MissionStatement *dkfbasel_protobuf1.NullString `protobuf:"bytes,3,opt,name=mission_statement,json=missionStatement" json:"mission_statement,omitempty" `
+	Name             string                         `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
+	NoOfPassengers   *dkfbasel_protobuf2.NullInt    `protobuf:"bytes,2,opt,name=no_of_passengers,json=noOfPassengers" json:"no_of_passengers,omitempty"`
+	MissionStatement *dkfbasel_protobuf1.NullString `protobuf:"bytes,3,opt,name=mission_statement,json=missionStatement" json:"mission_statement,omitempty"`
 	// use a different db column name for the departure time
 	// `db:"we_are_leaving_at"`
 	DepartureTime *dkfbasel_protobuf.Timestamp `protobuf:"bytes,4,opt,name=departure_time,json=departureTime" json:"departure_time,omitempty" db:"we_are_leaving_at"`

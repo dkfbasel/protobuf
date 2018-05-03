@@ -1,92 +1,119 @@
 package main
 
 import (
+	"bytes"
 	"io/ioutil"
 	"os"
+	"path/filepath"
+	"strings"
 	"testing"
 )
 
-func TestAddGoTags(t *testing.T) {
-	for _, sample := range testCases {
-		var path string
-		tmpfile, err := ioutil.TempFile("", "test")
-		if err != nil {
-			t.Error(err)
-		} else {
-			path = tmpfile.Name()
-			defer os.Remove(path)
-		}
-		input, err := os.Open(sample.Input)
-		if err != nil {
-			t.Error(err)
-		}
-		bs, err := ioutil.ReadAll(input)
-		if err != nil {
-			t.Error(err)
-		}
-		if err := input.Close(); err != nil {
-			t.Error(err)
-		}
-		if _, err := tmpfile.Write(bs); err != nil {
-			t.Error(err)
-		}
-		if err := tmpfile.Close(); err != nil {
-			t.Error(err)
+const testDirectory = "./testdata"
+
+func TestProtocGoTags(t *testing.T) {
+
+	// go through all files in the testdata directory
+	testfiles, err := ioutil.ReadDir(testDirectory)
+	if err != nil {
+		t.Error("could not open test directory")
+		t.Fail()
+	}
+
+	// go through all test files and check example and expected output
+	// a parsing error is expected if no expected output file is present
+	for _, info := range testfiles {
+		if info.IsDir() {
+			continue
 		}
 
-		err = addGoTags(path)
-		if sample.Error {
-			if err == nil {
-				t.Errorf("TestCase %s execpt some error, but got nil\n",
-						 sample.Name)
-			}
-		} else if err != nil {
-			t.Errorf("TestCase %s execpt no error, but got %v\n",
-					  sample.Name, err)
-		} else {
-			file, err := os.Open(path)
-			if err != nil {
-				t.Error(err)
-			}
-			output, err := ioutil.ReadAll(file)
-			if err != nil {
-				t.Error(err)
-			}
-			if err := file.Close(); err != nil {
-				t.Error(err)
-			}
+		// get the name of the file
+		exampleFilepath := info.Name()
 
-			file, err = os.Open(sample.Output)
-			if err != nil {
-				t.Error(err)
-			}
-			stand, err := ioutil.ReadAll(file)
-			if err != nil {
-				t.Error(err)
-			}
-			if err := file.Close(); err != nil {
-				t.Error(err)
-			}
-
-			if string(output) != string(stand) {
-				t.Errorf("TestCase %s except\n%s\n, but got\n%s\n",
-					     sample.Name, string(stand), string(output))
-			}
+		// skip all non example files
+		if strings.HasSuffix(exampleFilepath, "_example.go") == false {
+			continue
 		}
+
+		// format the test name
+		testName := formatTestName(exampleFilepath)
+
+		// read the example file
+		example, err := ioutil.ReadFile(filepath.Join(testDirectory, exampleFilepath))
+		if err != nil {
+			t.Errorf("could not open sample file: %s, %v\n", exampleFilepath, err)
+			continue
+		}
+
+		// expect a result when running go tags
+		expectParseError := false
+
+		// read the expected golden file
+		goldenFilepath := strings.Replace(exampleFilepath, "_example.go", "_expected.go", -1)
+		expected, err := ioutil.ReadFile(filepath.Join(testDirectory, goldenFilepath))
+
+		// if no result is given, that we would not expect a result
+		if err != nil {
+			expectParseError = true
+		}
+
+		// generate a temporary file for parsing
+		tmpfile, err := ioutil.TempFile(testDirectory, "test")
+		if err != nil {
+			t.Errorf("could not create temporary file: %s, %v\n", exampleFilepath, err)
+			continue
+		}
+
+		defer func() {
+			err2 := os.Remove(tmpfile.Name())
+			if err2 != nil {
+				t.Errorf("could not remove temporary file: %s, %v\n", tmpfile.Name(), err)
+			}
+		}()
+
+		_, err = tmpfile.Write(example)
+		if err != nil {
+			t.Errorf("could not write to temporary file: %v\n", err)
+			continue
+		}
+
+		err = tmpfile.Close()
+		if err != nil {
+			t.Errorf("could not close temporary file: %v\n", err)
+			continue
+		}
+
+		// run go tags on the temp file
+		parseError := applyStructTags(tmpfile.Name())
+
+		if expectParseError == true && parseError != nil {
+			t.Logf("Test %s successful\n", testName)
+			continue
+		}
+
+		if parseError != nil {
+			t.Errorf("Test %s faileds: parsing error: %v\n", testName, parseError)
+		}
+
+		result, err := ioutil.ReadFile(tmpfile.Name())
+		if err != nil {
+			t.Errorf("could not read output file: %v\n", err)
+			continue
+		}
+
+		if bytes.Equal(expected, result) == false {
+			t.Errorf("Test %s failed: expected result not matched\n", testName)
+			continue
+		}
+
+		t.Logf("Test %s successful\n", testName)
+
 	}
 }
 
-var testCases = []struct {
-	Name   string
-	Input  string
-	Output string
-	Error  bool
-}{
-	{"AddNothing", "./testdata/nothing.go", "./testdata/nothing.go", false},
-	{"ParseError", "./testdata/invalid.go", "./testdata/invalid.go", true},
-	{"AddGoTag", "./testdata/addtag.go", "./testdata/addedtag.go", false},
-	{"AddGoTags", "./testdata/addtags.go", "./testdata/addedtags.go", false},
-	{"AddGoTagsFromMultiComments", "./testdata/addtagsm.go", "./testdata/addedtagsm.go", false},
-	{"AddGoTagsOverride", "./testdata/addtagso.go", "./testdata/addedtagso.go", false},
-	{"AddGoTagMatchSyntax", "./testdata/addtagMatch.go", "./testdata/addedtagMatch.go", false},
+// formatTestName will format the file name of the example file for printing
+func formatTestName(name string) string {
+	name = strings.Replace(name, "_example.go", "", -1)
+	name = strings.Replace(name, "-", " ", -1)
+	return name
 }

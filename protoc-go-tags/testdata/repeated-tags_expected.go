@@ -28,8 +28,9 @@ var _ = math.Inf
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
 type Pair struct {
-	// `foo:"bar" key:"value"`
-	Key   string `protobuf:"bytes,1,opt,name=key" json:"key,omitempty"`
+	// `json:"1"`
+	// `json:"2" json:"3"`
+	Key   string `protobuf:"bytes,1,opt,name=key" json:"3"`
 	Value string `protobuf:"bytes,2,opt,name=value" json:"value,omitempty"`
 }
 

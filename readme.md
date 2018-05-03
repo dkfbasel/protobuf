@@ -5,12 +5,15 @@ that make working with null values in a database easier.
 
 In addition, the utility `protoc-go-tags` can be used to specify additional
 go struct tags in the proto definitions. This can be used to specify database
-column names or validation options.
+column names or validation options. It is also possible to replace existing tags,
+this can be used specifically to overwrite json tags.
 
-The utility will not yet replace existing json tags on the proto structs. Please
-note that we actually parse the go code and modify the AST (abstract syntax tree)
+Please note that we actually parse the go code and modify the AST (abstract syntax tree)
 to add your additional go tags. This should be somewhat more reliable than
 regular expressions alone.
+
+Struct tags must be placed on a separate comment line, but can contain multiple
+tags.
 
 ```
 // proto definitions
