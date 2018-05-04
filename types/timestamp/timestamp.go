@@ -6,34 +6,43 @@ import (
 	"time"
 )
 
-// Time returns a golang time object
-func (ts *Timestamp) Time() time.Time {
-	if ts.IsNull {
-		return time.Time{}
-	}
-	return time.Unix(0, ts.Milliseconds*1000*1000)
+// IsNull will return if the current timestamp is null
+func (ts *Timestamp) IsNull() bool {
+	// we use IsNotNull instead of IsNull to make sure that a timestamp is
+	// initialized as null value
+	return ts.IsNotNull == false
 }
 
 // Set will set the timestamp to the given time
-func (ts *Timestamp) Set(timepoint time.Time) {
+func (ts *Timestamp) Set(value time.Time) {
 
 	if ts == nil {
 		*ts = Timestamp{}
 	}
 
-	ts.Milliseconds = timepoint.UnixNano() / 1000 / 1000
-	ts.IsNull = false
+	ts.Milliseconds = value.UnixNano() / 1000 / 1000
+	ts.IsNotNull = true
 }
 
-// Clear will clear the timestamp
-func (ts *Timestamp) Clear() {
+// SetNull will clear the timestamp
+func (ts *Timestamp) SetNull() {
 
 	if ts == nil {
 		return
 	}
 
 	ts.Milliseconds = 0
-	ts.IsNull = true
+	ts.IsNotNull = false
+}
+
+// Time returns a golang time object
+func (ts *Timestamp) Time() time.Time {
+
+	if ts.IsNull() {
+		return time.Time{}
+	}
+
+	return time.Unix(0, ts.Milliseconds*1000*1000)
 }
 
 // Scan implements the Scanner interface of the database driver
@@ -44,23 +53,27 @@ func (ts *Timestamp) Scan(value interface{}) error {
 		*ts = Timestamp{}
 	}
 
-	dbTime, isNotNull := value.(time.Time)
+	// convert the interface to a time type
+	dbTime, ok := value.(time.Time)
 
-	if isNotNull {
+	if !ok {
 		ts.Milliseconds = dbTime.UnixNano() / 1000 / 1000
-		ts.IsNull = false
+		ts.IsNotNull = true
 		return nil
 	}
+
 	ts.Milliseconds = 0
-	ts.IsNull = true
+	ts.IsNotNull = false
 	return nil
 }
 
 // Value implements the db driver Valuer interface
 func (ts Timestamp) Value() (driver.Value, error) {
-	if ts.IsNull {
+
+	if ts.IsNull() {
 		return nil, nil
 	}
+
 	return time.Unix(0, ts.Milliseconds*1000*1000), nil
 }
 
@@ -77,14 +90,14 @@ func (ts *Timestamp) UnmarshalGraphQL(input interface{}) error {
 
 	case Timestamp:
 		time := Timestamp(input)
-		ts.IsNull = time.IsNull
+		ts.IsNotNull = time.IsNotNull
 		ts.Milliseconds = time.Milliseconds
 		return nil
 
 	case time.Time:
 		time := &Timestamp{}
 		time.Milliseconds = input.UnixNano() / 1000 / 1000
-		time.IsNull = false
+		time.IsNotNull = true
 		return nil
 
 	case string:
@@ -97,7 +110,7 @@ func (ts *Timestamp) UnmarshalGraphQL(input interface{}) error {
 		}
 
 		ts.Milliseconds = timepoint.UnixNano() / 1000 / 1000
-		ts.IsNull = false
+		ts.IsNotNull = true
 		return nil
 
 	default:

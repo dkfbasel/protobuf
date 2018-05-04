@@ -10,5 +10,5 @@ message NullString {
 	string text = 1;
 
 	// is set to true if the string is null
-	bool is_null = 2;
+	bool is_not_null = 2;
 }

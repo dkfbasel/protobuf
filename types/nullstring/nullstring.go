@@ -6,6 +6,37 @@ import (
 	"fmt"
 )
 
+// IsNull will return if the current string is null
+func (ns *NullString) IsNull() bool {
+	// we use IsNotNull instead of IsNull to make sure that a timestamp is
+	// initialized as null value
+	return ns.IsNotNull == false
+}
+
+// Set will set the null string to the given value
+func (ns *NullString) Set(value string) {
+
+	if ns == nil {
+		*ns = NullString{}
+	}
+
+	ns.Text = value
+	ns.IsNotNull = true
+
+}
+
+// SetNull will set the nullstring to null
+func (ns *NullString) SetNull() {
+
+	if ns == nil {
+		*ns = NullString{}
+	}
+
+	ns.Text = ""
+	ns.IsNotNull = false
+
+}
+
 // Scan implements the Scanner interface of the database driver
 func (ns *NullString) Scan(value interface{}) error {
 
@@ -18,7 +49,7 @@ func (ns *NullString) Scan(value interface{}) error {
 	if value == nil {
 
 		ns.Text = ""
-		ns.IsNull = true
+		ns.IsNotNull = false
 		return nil
 	}
 
@@ -32,14 +63,14 @@ func (ns *NullString) Scan(value interface{}) error {
 		return err
 	}
 
-	ns.IsNull = false
+	ns.IsNotNull = true
 	ns.Text = sqlString.String
 	return nil
 }
 
 // Value implements the db driver Valuer interface
 func (ns NullString) Value() (driver.Value, error) {
-	if ns.IsNull {
+	if ns.IsNull() {
 		return nil, nil
 	}
 	return ns.Text, nil
@@ -58,13 +89,13 @@ func (ns *NullString) UnmarshalGraphQL(input interface{}) error {
 
 	case NullString:
 		nString := NullString(input)
-		ns.IsNull = nString.IsNull
+		ns.IsNotNull = nString.IsNotNull
 		ns.Text = nString.Text
 		return nil
 
 	case string:
 		ns.Text = input
-		ns.IsNull = false
+		ns.IsNotNull = true
 		return nil
 
 	default:
