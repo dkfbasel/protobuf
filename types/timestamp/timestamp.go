@@ -56,7 +56,7 @@ func (ts *Timestamp) Scan(value interface{}) error {
 	// convert the interface to a time type
 	dbTime, ok := value.(time.Time)
 
-	if !ok {
+	if ok {
 		ts.Milliseconds = dbTime.UnixNano() / 1000 / 1000
 		ts.IsNotNull = true
 		return nil
