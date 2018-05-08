@@ -47,7 +47,6 @@ func (ns *NullString) Scan(value interface{}) error {
 
 	// if the value is nil, reset the data of the nullstring
 	if value == nil {
-
 		ns.Text = ""
 		ns.IsNotNull = false
 		return nil
