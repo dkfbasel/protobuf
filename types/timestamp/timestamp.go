@@ -80,7 +80,7 @@ func (ts Timestamp) Value() (driver.Value, error) {
 // ImplementsGraphQLType is required by the graphql custom scalar interface
 // this defines the name used in the schema to declare a null time type
 func (ts *Timestamp) ImplementsGraphQLType(name string) bool {
-	return name == "Date"
+	return name == "Time"
 }
 
 // UnmarshalGraphQL is required by the graphql custom scalar interface
