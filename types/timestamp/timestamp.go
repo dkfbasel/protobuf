@@ -119,3 +119,17 @@ func (ts *Timestamp) UnmarshalGraphQL(input interface{}) error {
 		return fmt.Errorf("wrong type")
 	}
 }
+
+// MarshalJSON will return the content as json value, this is also called
+// by graphql to generate the response
+func (ts Timestamp) MarshalJSON() ([]byte, error) {
+
+	if ts.IsNull() {
+		return []byte("null"), nil
+	}
+
+	// format the timestamp in iso compatible time format
+	formatted := fmt.Sprintf("\"%s\"", ts.Time().Format(time.RFC3339))
+
+	return []byte(formatted), nil
+}
