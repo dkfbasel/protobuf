@@ -86,6 +86,7 @@ func (ts *Timestamp) ImplementsGraphQLType(name string) bool {
 // UnmarshalGraphQL is required by the graphql custom scalar interface
 // this wraps the null time
 func (ts *Timestamp) UnmarshalGraphQL(input interface{}) error {
+	fmt.Println("TEST")
 	switch input := input.(type) {
 
 	case Timestamp:
@@ -106,7 +107,12 @@ func (ts *Timestamp) UnmarshalGraphQL(input interface{}) error {
 		timepoint, err := time.Parse("2006-01-02", input)
 
 		if err != nil {
-			return fmt.Errorf("format for time must be yyyy-mm-dd")
+
+			timepoint, err = time.Parse(time.RFC3339, input)
+			if err != nil {
+				return fmt.Errorf("format for time must be yyyy-mm-dd")
+			}
+
 		}
 
 		ts.Milliseconds = timepoint.UnixNano() / 1000 / 1000
