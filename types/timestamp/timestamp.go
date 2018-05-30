@@ -86,7 +86,6 @@ func (ts *Timestamp) ImplementsGraphQLType(name string) bool {
 // UnmarshalGraphQL is required by the graphql custom scalar interface
 // this wraps the null time
 func (ts *Timestamp) UnmarshalGraphQL(input interface{}) error {
-	fmt.Println("TEST")
 	switch input := input.(type) {
 
 	case Timestamp:
