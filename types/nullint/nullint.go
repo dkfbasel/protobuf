@@ -6,6 +6,37 @@ import (
 	"fmt"
 )
 
+// IsNull will return if the current null int is null
+func (ni *NullInt) IsNull() bool {
+	// we use IsNotNull instead of IsNull to make sure that a timestamp is
+	// initialized as null value
+	return ni.IsNotNull == false
+}
+
+// Set will set the null string to the given value
+func (ni *NullInt) Set(value int64) {
+
+	if ni == nil {
+		*ni = NullInt{}
+	}
+
+	ni.Int = value
+	ni.IsNotNull = true
+
+}
+
+// SetNull will set the null int to null
+func (ni *NullInt) SetNull() {
+
+	if ni == nil {
+		*ni = NullInt{}
+	}
+
+	ni.Int = 0
+	ni.IsNotNull = false
+
+}
+
 // Scan implements the Scanner interface of the database driver
 func (ni *NullInt) Scan(value interface{}) error {
 
@@ -18,7 +49,7 @@ func (ni *NullInt) Scan(value interface{}) error {
 	if value == nil {
 
 		ni.Int = 0
-		ni.IsNull = true
+		ni.IsNotNull = false
 		return nil
 
 	}
@@ -32,14 +63,14 @@ func (ni *NullInt) Scan(value interface{}) error {
 	if err != nil {
 		return err
 	}
-	ni.IsNull = false
+	ni.IsNotNull = true
 	ni.Int = sqlInt.Int64
 	return nil
 }
 
 // Value implements the db driver Valuer interface
 func (ni NullInt) Value() (driver.Value, error) {
-	if ni.IsNull {
+	if ni.IsNull() {
 		return nil, nil
 	}
 	return ni.Int, nil
@@ -58,23 +89,23 @@ func (ni *NullInt) UnmarshalGraphQL(input interface{}) error {
 
 	case NullInt:
 		nInt := NullInt(input)
-		ni.IsNull = nInt.IsNull
+		ni.IsNotNull = nInt.IsNotNull
 		ni.Int = nInt.Int
 		return nil
 
 	case int:
 		ni.Int = int64(input)
-		ni.IsNull = false
+		ni.IsNotNull = true
 		return nil
 
 	case int32:
 		ni.Int = int64(input)
-		ni.IsNull = false
+		ni.IsNotNull = true
 		return nil
 
 	case int64:
 		ni.Int = input
-		ni.IsNull = false
+		ni.IsNotNull = true
 		return nil
 
 	default:

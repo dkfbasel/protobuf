@@ -11,5 +11,5 @@ message Timestamp {
 	int64 milliseconds = 1;
 
 	// is set to true if the timestamp is null
-	bool is_null = 2;
+	bool is_not_null = 2;
 }

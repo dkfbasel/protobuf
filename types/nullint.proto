@@ -10,5 +10,5 @@ message NullInt {
 	int64 int = 1;
 
 	// is set to true if the integer is null
-	bool is_null = 2;
+	bool is_not_null = 2;
 }

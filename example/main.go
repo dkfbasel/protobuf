@@ -70,8 +70,7 @@ func main() {
 
 	// set a mission for the USS Enterprise
 	starshipFleetShip.MissionStatement = &nullstring.NullString{}
-	starshipFleetShip.MissionStatement.Text = "Training mission"
-	starshipFleetShip.MissionStatement.IsNull = false
+	starshipFleetShip.MissionStatement.Set("Training mission")
 
 	// update the USS Enterprise information in the database
 	stmt = `

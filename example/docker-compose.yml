@@ -16,7 +16,7 @@ services:
       - MYSQL_PASSWORD=123456
 
   starfleet_example:
-    image: dkfbasel/hot-reload-go:1.9.2
+    image: dkfbasel/hot-reload-go:1.10.2
     dns_search: .
     container_name: starfleet_example
     dns_search: .
