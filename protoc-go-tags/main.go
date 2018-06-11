@@ -190,7 +190,7 @@ func combineTags(tagList string, commentTags []string) string {
 		tagName := strings.Split(tag, ":")[0]
 
 		// define the tag that should be matched
-		tagMatch := fmt.Sprintf(`%s:".*"`, tagName)
+		tagMatch := fmt.Sprintf(`%s:".+?"`, tagName)
 
 		// create a custom tag matcher based on the tag name
 		matcher := regexp.MustCompile(tagMatch)
