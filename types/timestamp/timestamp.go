@@ -110,11 +110,8 @@ func (ts *Timestamp) UnmarshalGraphQL(input interface{}) error {
 		timepoint, err := time.Parse(time.RFC3339, input)
 
 		if err != nil {
-
-			timepoint, err = time.Parse(time.RFC3339, input)
-			if err != nil {
 			return fmt.Errorf("format for time must be RFC3339 format")
-			}
+		}
 
 		ts.Set(timepoint)
 		return nil
