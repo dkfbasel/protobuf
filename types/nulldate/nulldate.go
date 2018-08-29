@@ -1,6 +1,7 @@
 package nulldate
 
 import (
+	"bytes"
 	"database/sql/driver"
 	"fmt"
 	"time"
@@ -126,7 +127,9 @@ func (dt *NullDate) UnmarshalGraphQL(input interface{}) error {
 
 // UnmarshalJSON is used to convert the json representation into a null date
 func (dt *NullDate) UnmarshalJSON(input []byte) error {
-	asString := string(input)
+	// trim the leading and trailing quotes from the timestamp
+	cleanInput := bytes.Trim(input, "\"")
+	asString := string(cleanInput)
 	dt.Set(asString)
 	return nil
 }
