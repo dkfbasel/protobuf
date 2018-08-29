@@ -1,6 +1,7 @@
 package timestamp
 
 import (
+	"bytes"
 	"database/sql/driver"
 	"fmt"
 	"time"
@@ -140,11 +141,14 @@ func (ts Timestamp) MarshalJSON() ([]byte, error) {
 // UnmarshalJSON is used to convert the json representation into a timestamp
 func (ts *Timestamp) UnmarshalJSON(input []byte) error {
 
+	// trim the leading and trailing quotes from the timestamp
+	cleanInput := bytes.Trim(input, "\"")
+
 	// try to parse the information as date
-	timepoint, err := time.Parse(time.RFC3339, string(input))
+	timepoint, err := time.Parse(time.RFC3339, string(cleanInput))
 
 	if err != nil {
-		return fmt.Errorf("format for time must be RFC3339 format")
+		return fmt.Errorf("format for time must be RFC3339 format: %T err:%v", timepoint, err)
 	}
 
 	ts.Set(timepoint)
