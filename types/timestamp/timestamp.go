@@ -20,6 +20,11 @@ func (ts *Timestamp) Set(value time.Time) {
 		*ts = Timestamp{}
 	}
 
+	if value.IsZero() {
+		ts.SetNull()
+		return
+	}
+
 	ts.Milliseconds = value.UnixNano() / 1000 / 1000
 	ts.IsNotNull = true
 }
@@ -89,9 +94,8 @@ func (ts *Timestamp) UnmarshalGraphQL(input interface{}) error {
 	switch input := input.(type) {
 
 	case Timestamp:
-		time := Timestamp(input)
-		ts.IsNotNull = time.IsNotNull
-		ts.Milliseconds = time.Milliseconds
+		ts.IsNotNull = input.IsNotNull
+		ts.Milliseconds = input.Milliseconds
 		return nil
 
 	case time.Time:
@@ -103,19 +107,16 @@ func (ts *Timestamp) UnmarshalGraphQL(input interface{}) error {
 	case string:
 
 		// try to parse the information as date
-		timepoint, err := time.Parse("2006-01-02", input)
+		timepoint, err := time.Parse(time.RFC3339, input)
 
 		if err != nil {
 
 			timepoint, err = time.Parse(time.RFC3339, input)
 			if err != nil {
-				return fmt.Errorf("format for time must be yyyy-mm-dd")
+			return fmt.Errorf("format for time must be RFC3339 format")
 			}
 
-		}
-
-		ts.Milliseconds = timepoint.UnixNano() / 1000 / 1000
-		ts.IsNotNull = true
+		ts.Set(timepoint)
 		return nil
 
 	default:
@@ -137,4 +138,19 @@ func (ts Timestamp) MarshalJSON() ([]byte, error) {
 	formatted := fmt.Sprintf("\"%s\"", ts.Time().Format(time.RFC3339))
 
 	return []byte(formatted), nil
+}
+
+// UnmarshalJSON is used to convert the json representation into a timestamp
+func (ts *Timestamp) UnmarshalJSON(input []byte) error {
+
+	// try to parse the information as date
+	timepoint, err := time.Parse(time.RFC3339, string(input))
+
+	if err != nil {
+		return fmt.Errorf("format for time must be RFC3339 format")
+	}
+
+	ts.Set(timepoint)
+
+	return nil
 }

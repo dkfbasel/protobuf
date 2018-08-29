@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package dkfbasel.protobuf;
+
+option go_package = "github.com/dkfbasel/protobuf/types/nulldate";
+
+// NullDate ...
+message NullDate { 
+	string date = 1;
+
+	// is set to true if the date is null
+	bool is_not_null = 2;
+}
