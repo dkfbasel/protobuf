@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"database/sql/driver"
 	"fmt"
+	"strconv"
 	"time"
 )
 
@@ -110,10 +111,18 @@ func (ts *Timestamp) UnmarshalGraphQL(input interface{}) error {
 		// try to parse the information as date
 		timepoint, err := time.Parse(time.RFC3339, input)
 
-		if err != nil {
-			return fmt.Errorf("format for time must be RFC3339 format: %s", input)
+		if err == nil {
+			ts.Set(timepoint)
+			return nil
 		}
 
+		// try to parse the information as unix timestamp
+		asInt, err := strconv.ParseInt(input, 0, 64)
+		if err != nil {
+			return fmt.Errorf("format for time must be RFC3339 format or unix timestamp: %s", input)
+		}
+
+		timepoint = time.Unix(asInt/1000, (asInt%1000)*1000*1000)
 		ts.Set(timepoint)
 		return nil
 
@@ -144,14 +153,25 @@ func (ts *Timestamp) UnmarshalJSON(input []byte) error {
 	// trim the leading and trailing quotes from the timestamp
 	cleanInput := bytes.Trim(input, "\"")
 
-	// try to parse the information as date
-	timepoint, err := time.Parse(time.RFC3339, string(cleanInput))
+	// convert to string
+	asString := string(cleanInput)
 
-	if err != nil {
-		return fmt.Errorf("format for time must be RFC3339 format: %T err:%v", timepoint, err)
+	// try to parse the information as date
+	timepoint, err := time.Parse(time.RFC3339, asString)
+
+	// parsing worked
+	if err == nil {
+		ts.Set(timepoint)
+		return nil
 	}
 
-	ts.Set(timepoint)
+	// try to parse the information as unix timestamp
+	asInt, err := strconv.ParseInt(asString, 0, 64)
+	if err != nil {
+		return fmt.Errorf("format for time must be RFC3339 format or unix timestamp: %T err:%v", timepoint, err)
+	}
 
+	timepoint = time.Unix(asInt/1000, (asInt%1000)*1000*1000)
+	ts.Set(timepoint)
 	return nil
 }
