@@ -8,6 +8,11 @@ import (
 
 // IsNull will return if the current null int is null
 func (ni *NullInt) IsNull() bool {
+
+	if ni == nil {
+		return true
+	}
+
 	// we use IsNotNull instead of IsNull to make sure that a timestamp is
 	// initialized as null value
 	return ni.IsNotNull == false

@@ -10,6 +10,11 @@ import (
 
 // IsNull will return if the current timestamp is null
 func (ts *Timestamp) IsNull() bool {
+
+	if ts == nil {
+		return true
+	}
+
 	// we use IsNotNull instead of IsNull to make sure that a timestamp is
 	// initialized as null value
 	return ts.IsNotNull == false

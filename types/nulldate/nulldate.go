@@ -9,6 +9,11 @@ import (
 
 // IsNull will return if the current timestamp is null
 func (dt *NullDate) IsNull() bool {
+
+	if dt == nil {
+		return true
+	}
+
 	// we use IsNotNull instead of IsNull to make sure that a date is always
 	// initialized as null value
 	return dt.IsNotNull == false
