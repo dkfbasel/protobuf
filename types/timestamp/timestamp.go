@@ -113,21 +113,11 @@ func (ts *Timestamp) UnmarshalGraphQL(input interface{}) error {
 
 	case string:
 
-		// try to parse the information as date
-		timepoint, err := time.Parse(time.RFC3339, input)
-
-		if err == nil {
-			ts.Set(timepoint)
-			return nil
-		}
-
-		// try to parse the information as unix timestamp
-		asInt, err := strconv.ParseInt(input, 0, 64)
+		timepoint, err := parseFromString(input)
 		if err != nil {
-			return fmt.Errorf("format for time must be RFC3339 format or unix timestamp: %s", input)
+			return err
 		}
 
-		timepoint = time.Unix(asInt/1000, (asInt%1000)*1000*1000)
 		ts.Set(timepoint)
 		return nil
 
@@ -161,22 +151,37 @@ func (ts *Timestamp) UnmarshalJSON(input []byte) error {
 	// convert to string
 	asString := string(cleanInput)
 
-	// try to parse the information as date
-	timepoint, err := time.Parse(time.RFC3339, asString)
+	timepoint, err := parseFromString(asString)
+	if err != nil {
+		return err
+	}
 
-	// parsing worked
+	ts.Set(timepoint)
+	return nil
+}
+
+// parseFromString will attemt to parse a timestamp string as time
+func parseFromString(input string) (time.Time, error) {
+
+	// try to parse the information as date
+	timepoint, err := time.Parse(time.RFC3339, input)
 	if err == nil {
-		ts.Set(timepoint)
-		return nil
+		return timepoint, nil
+	}
+
+	// try to parse the information as date with nano precision from postgres
+	timepoint, err = time.Parse("2006-01-02T15:04:05.999999", input)
+	if err == nil {
+		return timepoint, nil
 	}
 
 	// try to parse the information as unix timestamp
-	asInt, err := strconv.ParseInt(asString, 0, 64)
+	asInt, err := strconv.ParseInt(input, 0, 64)
 	if err != nil {
-		return fmt.Errorf("format for time must be RFC3339 format or unix timestamp: %T err:%v", timepoint, err)
+		return time.Time{}, fmt.Errorf("format for time must be RFC3339, RFC3339Nano format or unix timestamp: %s", input)
 	}
 
 	timepoint = time.Unix(asInt/1000, (asInt%1000)*1000*1000)
-	ts.Set(timepoint)
-	return nil
+	return timepoint, nil
+
 }
