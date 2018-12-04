@@ -121,6 +121,10 @@ func (ts *Timestamp) UnmarshalGraphQL(input interface{}) error {
 		ts.Set(timepoint)
 		return nil
 
+	case nil:
+		ts.SetNull()
+		return nil
+
 	default:
 		fmt.Printf("%T\n", input)
 		fmt.Println(input)
@@ -150,6 +154,11 @@ func (ts *Timestamp) UnmarshalJSON(input []byte) error {
 
 	// convert to string
 	asString := string(cleanInput)
+
+	if asString == "null" {
+		ts.SetNull()
+		return nil
+	}
 
 	timepoint, err := parseFromString(asString)
 	if err != nil {

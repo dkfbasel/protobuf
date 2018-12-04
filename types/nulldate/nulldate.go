@@ -79,6 +79,11 @@ func (dt *NullDate) Scan(value interface{}) error {
 		dt.Date = input
 		dt.IsNotNull = true
 		return nil
+
+	case nil:
+		dt.SetNull()
+		return nil
+
 	default:
 		return fmt.Errorf("unkown type for NullDate: %T", input)
 	}
@@ -123,6 +128,10 @@ func (dt *NullDate) UnmarshalGraphQL(input interface{}) error {
 		}
 
 		dt.Set(input)
+		return nil
+
+	case nil:
+		dt.SetNull()
 		return nil
 
 	default:
