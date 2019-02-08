@@ -4,11 +4,17 @@ import (
 	"bytes"
 	"database/sql/driver"
 	"fmt"
+	"strconv"
 	"time"
 )
 
 // IsNull will return if the current timestamp is null
 func (ts *Timestamp) IsNull() bool {
+
+	if ts == nil {
+		return true
+	}
+
 	// we use IsNotNull instead of IsNull to make sure that a timestamp is
 	// initialized as null value
 	return ts.IsNotNull == false
@@ -107,14 +113,16 @@ func (ts *Timestamp) UnmarshalGraphQL(input interface{}) error {
 
 	case string:
 
-		// try to parse the information as date
-		timepoint, err := time.Parse(time.RFC3339, input)
-
+		timepoint, err := parseFromString(input)
 		if err != nil {
-			return fmt.Errorf("format for time must be RFC3339 format: %s", input)
+			return err
 		}
 
 		ts.Set(timepoint)
+		return nil
+
+	case nil:
+		ts.SetNull()
 		return nil
 
 	default:
@@ -144,14 +152,45 @@ func (ts *Timestamp) UnmarshalJSON(input []byte) error {
 	// trim the leading and trailing quotes from the timestamp
 	cleanInput := bytes.Trim(input, "\"")
 
-	// try to parse the information as date
-	timepoint, err := time.Parse(time.RFC3339, string(cleanInput))
+	// convert to string
+	asString := string(cleanInput)
 
+	if asString == "null" {
+		ts.SetNull()
+		return nil
+	}
+
+	timepoint, err := parseFromString(asString)
 	if err != nil {
-		return fmt.Errorf("format for time must be RFC3339 format: %T err:%v", timepoint, err)
+		return err
 	}
 
 	ts.Set(timepoint)
-
 	return nil
+}
+
+// parseFromString will attemt to parse a timestamp string as time
+func parseFromString(input string) (time.Time, error) {
+
+	// try to parse the information as date
+	timepoint, err := time.Parse(time.RFC3339, input)
+	if err == nil {
+		return timepoint, nil
+	}
+
+	// try to parse the information as date with nano precision from postgres
+	timepoint, err = time.Parse("2006-01-02T15:04:05.999999", input)
+	if err == nil {
+		return timepoint, nil
+	}
+
+	// try to parse the information as unix timestamp
+	asInt, err := strconv.ParseInt(input, 0, 64)
+	if err != nil {
+		return time.Time{}, fmt.Errorf("format for time must be RFC3339, RFC3339Nano format or unix timestamp: %s", input)
+	}
+
+	timepoint = time.Unix(asInt/1000, (asInt%1000)*1000*1000)
+	return timepoint, nil
+
 }
