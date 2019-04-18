@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"database/sql/driver"
 	"fmt"
+	"strconv"
 )
 
 // IsNull will return if the current string is null
@@ -92,9 +93,8 @@ func (ns *NullString) UnmarshalGraphQL(input interface{}) error {
 	switch input := input.(type) {
 
 	case NullString:
-		nString := NullString(input)
-		ns.IsNotNull = nString.IsNotNull
-		ns.Text = nString.Text
+		ns.IsNotNull = input.IsNotNull
+		ns.Text = input.Text
 		return nil
 
 	case string:
@@ -107,4 +107,26 @@ func (ns *NullString) UnmarshalGraphQL(input interface{}) error {
 		fmt.Println(input)
 		return fmt.Errorf("wrong type")
 	}
+}
+
+// UnmarshalJSON is required to parse json input to string value
+func (ns *NullString) UnmarshalJSON(input []byte) error {
+	unquoted, err := strconv.Unquote(string(input))
+	if err != nil {
+		ns.Set(string(input))
+	}
+	ns.Set(unquoted)
+	return nil
+}
+
+// MarshalJSON will return the content as json value, this is also called
+// by graphql to generate the response
+func (ns *NullString) MarshalJSON() ([]byte, error) {
+
+	if ns.IsNull() {
+		return []byte("null"), nil
+	}
+
+	// escape quotes inline to guarantee that the result is a single string
+	return []byte(strconv.Quote(ns.Text)), nil
 }
